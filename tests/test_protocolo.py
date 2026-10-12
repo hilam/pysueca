@@ -3,7 +3,7 @@
 import json
 
 from pysueca.carta import Carta, Naipe, Valor
-from pysueca.protocolo import Entrar, Jogar, Responder, desserializar, serializar
+from pysueca.protocolo import Entrar, Erro, Jogar, Responder, desserializar, serializar
 
 
 def test_entrar_faz_ida_e_volta() -> None:
@@ -23,3 +23,8 @@ def test_responder_faz_ida_e_volta() -> None:
 
         assert json.loads(linha)["cima"] is cima
         assert desserializar(linha) == Responder(cima)
+
+
+def test_linha_malformada_vira_erro() -> None:
+    for linha in (b"{", b"nao e json", b"[1, 2]"):
+        assert desserializar(linha) == Erro("json_invalido")
