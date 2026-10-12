@@ -199,7 +199,9 @@ def test_nao_seguir_o_naipe_vira_erro() -> None:
 
 def test_estado_carrega_os_assentos_ausentes() -> None:
     for ausentes in ([2], []):
-        snap = Estado(assentos=["Ana", "Bia", "Caio", "Dora"], mao=[], ausentes=ausentes)
+        snap = Estado(
+            assentos=["Ana", "Bia", "Caio", "Dora"], mao=[], ausentes=ausentes
+        )
         linha = serializar(snap)
 
         assert json.loads(linha)["ausentes"] == ausentes

@@ -53,7 +53,9 @@ async def receber_estado(leitor: asyncio.StreamReader) -> Estado:
     return mensagem
 
 
-async def sentar(porta: int, nome: str) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
+async def sentar(
+    porta: int, nome: str
+) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     """Uma conexão de cliente que já mandou `entrar`."""
     leitor, escritor = await asyncio.open_connection("127.0.0.1", porta)
     await enviar(escritor, Entrar(nome))
@@ -93,7 +95,9 @@ async def nada(leitor: asyncio.StreamReader) -> None:
     raise AssertionError(f"mensagem inesperada: {linha!r}")
 
 
-async def sentar_quatro(porta: int) -> list[tuple[asyncio.StreamReader, asyncio.StreamWriter]]:
+async def sentar_quatro(
+    porta: int,
+) -> list[tuple[asyncio.StreamReader, asyncio.StreamWriter]]:
     """Quatro conexões sentadas nos quatro assentos, cada uma já com o snapshot."""
     conexoes = [await sentar(porta, nome) for nome in ("Ana", "Bia", "Caio", "Duda")]
     for leitor, _ in conexoes:
@@ -123,8 +127,12 @@ async def jogar_a_mao(
         vez = snapshots[0].vez
         assert vez is not None
         mao = [Carta.de_texto(texto) for texto in snapshots[vez].mao]
-        puxado = Carta.de_texto(snapshots[0].vaza[0][1]).naipe if snapshots[0].vaza else None
-        legais = [carta for carta in mao if puxado is None or jogada_legal(mao, puxado, carta)]
+        puxado = (
+            Carta.de_texto(snapshots[0].vaza[0][1]).naipe if snapshots[0].vaza else None
+        )
+        legais = [
+            carta for carta in mao if puxado is None or jogada_legal(mao, puxado, carta)
+        ]
         await enviar(conexoes[vez][1], Jogar(rng.choice(legais)))
         snapshots = [await receber_estado(leitor) for leitor, _ in conexoes]
     return snapshots
@@ -303,7 +311,9 @@ def test_jogada_ilegal_vira_erro_so_para_quem_jogou() -> None:
             assert vez is not None
             fora = (vez + 1) % 4
 
-            await enviar(conexoes[fora][1], Jogar(Carta.de_texto(snapshots[fora].mao[0])))
+            await enviar(
+                conexoes[fora][1], Jogar(Carta.de_texto(snapshots[fora].mao[0]))
+            )
 
             assert await receber(conexoes[fora][0]) == Erro("fora_da_vez")
             for i, (leitor, _) in enumerate(conexoes):
@@ -405,7 +415,9 @@ def test_queda_congela_a_mesa_e_avisa_os_outros_tres() -> None:
             conexoes[caido][1].close()
             await conexoes[caido][1].wait_closed()
 
-            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            restantes = [
+                conexao for assento, conexao in enumerate(conexoes) if assento != caido
+            ]
             for leitor, _ in restantes:
                 snapshot = await receber_estado(leitor)
                 assert snapshot.ausentes == [caido]
@@ -426,7 +438,9 @@ def test_mesa_congelada_recusa_jogadas() -> None:
             conexoes[caido][1].close()
             await conexoes[caido][1].wait_closed()
 
-            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            restantes = [
+                conexao for assento, conexao in enumerate(conexoes) if assento != caido
+            ]
             for leitor, _ in restantes:
                 assert (await receber_estado(leitor)).ausentes == [caido]
 
@@ -452,7 +466,9 @@ def test_reconexao_com_o_mesmo_nome_retoma_o_assento() -> None:
             conexoes[caido][1].close()
             await conexoes[caido][1].wait_closed()
 
-            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            restantes = [
+                conexao for assento, conexao in enumerate(conexoes) if assento != caido
+            ]
             for leitor, _ in restantes:
                 assert (await receber_estado(leitor)).ausentes == [caido]
 
@@ -491,7 +507,9 @@ def test_linha_acima_do_teto_fecha_aquela_conexao() -> None:
             conexoes[caido][1].close()
             await conexoes[caido][1].wait_closed()
 
-            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            restantes = [
+                conexao for assento, conexao in enumerate(conexoes) if assento != caido
+            ]
             for leitor, _ in restantes:
                 snapshot = await receber_estado(leitor)
                 assert snapshot.ausentes == [caido]
@@ -513,7 +531,9 @@ def test_os_outros_tres_seguem_na_mesa() -> None:
             conexoes[caido][1].close()
             await conexoes[caido][1].wait_closed()
 
-            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            restantes = [
+                conexao for assento, conexao in enumerate(conexoes) if assento != caido
+            ]
             for leitor, _ in restantes:
                 assert (await receber_estado(leitor)).ausentes == [caido]
 

@@ -45,7 +45,7 @@ class Servidor:
             while True:
                 try:
                     linha = await leitor.readline()
-                except (ValueError, LinhaLonga):
+                except ValueError, LinhaLonga:
                     break
                 if not linha:
                     break
@@ -161,7 +161,10 @@ class Servidor:
     async def _transmitir(self) -> None:
         """Manda o snapshot de cada assento ocupado, montado antes do primeiro write."""
         linhas = [
-            (conexao, serializar(estado(self.jogo, self.nomes, assento, self._ausentes())))
+            (
+                conexao,
+                serializar(estado(self.jogo, self.nomes, assento, self._ausentes())),
+            )
             for assento, conexao in enumerate(self.conexoes)
             if conexao is not None
         ]
