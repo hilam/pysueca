@@ -10,6 +10,7 @@ from typing import Any
 
 import pytest
 from textual.widgets import Static
+from textual.widgets._footer import FooterKey
 
 from pysueca.carta import Carta
 from pysueca.main import (
@@ -679,6 +680,22 @@ def test_congelado_o_cliente_ainda_manda_e_o_servidor_recusa() -> None:
         await aguardar(pilot, lambda: "a jogada não valeu" in painel(app, "#aviso"))
         assert "A mesa está congelada: a jogada não valeu" in painel(app, "#aviso")
         assert "mesa_congelada" not in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
+
+
+def test_as_teclas_de_jogo_aparecem_no_rodape() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        await pilot.pause()
+        visiveis = {
+            (tecla.key_display, tecla.description)
+            for tecla in app.query(FooterKey)
+            if tecla.display
+        }
+        assert ("←", "Anterior") in visiveis
+        assert ("→", "Próxima") in visiveis
+        assert ("⏎", "Jogar") in visiveis
+        assert ("^q", "Sair") in visiveis
 
     rodar("Ana", cenario)
 
