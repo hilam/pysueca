@@ -7,6 +7,12 @@ from dataclasses import dataclass
 
 from pysueca.carta import Carta
 
+TETO_LINHA = 4096
+
+
+class LinhaLonga(Exception):
+    """Linha acima do teto: único erro fatal, que fecha a conexão."""
+
 
 @dataclass(frozen=True)
 class Entrar:
@@ -69,6 +75,8 @@ def _validar(tipo: str, dados: dict) -> str | None:
 
 def desserializar(linha: bytes) -> Entrar | Jogar | Responder | Erro:
     """A mensagem da linha lida do fio, ou o `Erro` recuperável."""
+    if len(linha) > TETO_LINHA:
+        raise LinhaLonga(len(linha))
     try:
         dados = json.loads(linha.decode())
     except (UnicodeDecodeError, json.JSONDecodeError):
