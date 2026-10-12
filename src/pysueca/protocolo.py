@@ -47,6 +47,22 @@ def serializar(mensagem: Entrar | Jogar | Responder) -> bytes:
     return (json.dumps(dados) + "\n").encode()
 
 
+_CAMPOS: dict[str, dict[str, type | tuple[type, ...]]] = {
+    "entrar": {"nome": str},
+    "jogar": {"carta": str},
+    "responder": {"cima": bool},
+}
+
+
+def _validar(tipo: str, dados: dict) -> str | None:
+    """O motivo da recusa do corpo da mensagem, ou `None` se a forma está correta."""
+    esperados = _CAMPOS[tipo]
+    for campo, tipo_esperado in esperados.items():
+        if not isinstance(dados.get(campo), tipo_esperado):
+            return "campo_faltando"
+    return None
+
+
 def desserializar(linha: bytes) -> Entrar | Jogar | Responder | Erro:
     """A mensagem da linha lida do fio, ou o `Erro` recuperável."""
     try:
@@ -56,10 +72,13 @@ def desserializar(linha: bytes) -> Entrar | Jogar | Responder | Erro:
     if not isinstance(dados, dict):
         return Erro("json_invalido")
     tipo = dados.get("tipo")
+    if not isinstance(tipo, str) or tipo not in _CAMPOS:
+        return Erro("tipo_desconhecido")
+    motivo = _validar(tipo, dados)
+    if motivo is not None:
+        return Erro(motivo)
     if tipo == "entrar":
         return Entrar(dados["nome"])
     if tipo == "jogar":
         return Jogar(Carta.de_texto(dados["carta"]))
-    if tipo == "responder":
-        return Responder(dados["cima"])
-    return Erro("tipo_desconhecido")
+    return Responder(dados["cima"])
