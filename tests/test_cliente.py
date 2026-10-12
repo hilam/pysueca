@@ -249,3 +249,33 @@ def test_fora_da_vez_o_servidor_decide() -> None:
         assert "fora_de_hora" in painel(app, "#aviso")
 
     rodar("Ana", cenario)
+
+
+def test_a_selecao_volta_a_primeira_carta_com_a_mao_nova() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H", "AC", "QS"],
+                vez=0,
+            )
+        )
+        await aguardar(pilot, lambda: painel(app, "#mao") != "")
+        await pilot.press("right")
+        await pilot.press("right")
+        await pilot.pause()
+        assert indice_destacado(app) == 2
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["AD", "KC"],
+                vez=0,
+            )
+        )
+        await aguardar(pilot, lambda: "A♦" in painel(app, "#mao"))
+        assert indice_destacado(app) == 0
+        await pilot.press("enter")
+        assert await falso.proxima() == Jogar(Carta.de_texto("AD"))
+
+    rodar("Ana", cenario)
