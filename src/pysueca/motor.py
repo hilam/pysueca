@@ -152,3 +152,12 @@ class Jogo:
 
     def jogar(self, assento: int, carta: Carta) -> ErroJogada | None:
         return self.mao.jogar(assento, carta)
+
+    def encerrar_mao(self) -> Resultado:
+        """Soma a mão ao placar da dupla vencedora e devolve o resultado."""
+        resultado = self.mao.resultado
+        if resultado is Resultado.EMPATE:
+            return resultado
+        dupla = 0 if self.mao.pontos[0] > self.mao.pontos[1] else 1
+        self.partidas[dupla] += resultado.partidas
+        return resultado
