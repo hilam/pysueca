@@ -19,6 +19,8 @@ from pysueca.protocolo import (
     serializar,
 )
 
+VAZAS_POR_MAO = 10
+
 
 class Servidor:
     """A mesa: o `Jogo` e os quatro assentos (nome e conexão)."""
@@ -60,6 +62,8 @@ class Servidor:
                         if erro is not None:
                             await self._enviar(escritor, erro_de_jogada(erro))
                         else:
+                            if len(self.jogo.mao.vazas) == VAZAS_POR_MAO:
+                                self.jogo.encerrar_mao()
                             await self._transmitir()
                 elif isinstance(mensagem, Responder):
                     if assento is None:
