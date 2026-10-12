@@ -74,12 +74,33 @@ async def drenar(leitor: asyncio.StreamReader) -> Estado:
     return ultimo
 
 
+async def nada(leitor: asyncio.StreamReader) -> None:
+    """Assere que a conexão não recebeu nada no timeout curto."""
+    try:
+        linha = await asyncio.wait_for(leitor.read(1), 0.05)
+    except TimeoutError:
+        return
+    raise AssertionError(f"mensagem inesperada: {linha!r}")
+
+
 async def sentar_quatro(porta: int) -> list[tuple[asyncio.StreamReader, asyncio.StreamWriter]]:
     """Quatro conexões sentadas nos quatro assentos, cada uma já com o snapshot."""
     conexoes = [await sentar(porta, nome) for nome in ("Ana", "Bia", "Caio", "Duda")]
     for leitor, _ in conexoes:
         await receber(leitor)
     return conexoes
+
+
+async def mesa_pronta(
+    porta: int,
+) -> tuple[list[tuple[asyncio.StreamReader, asyncio.StreamWriter]], list[Estado]]:
+    """Quatro assentos sentados e a mão preparada, com o snapshot de cada um."""
+    conexoes = await sentar_quatro(porta)
+    respondente = (await drenar(conexoes[0][0])).respondente
+    assert respondente is not None
+    await enviar(conexoes[respondente][1], Responder(True))
+    snapshots = [await drenar(leitor) for leitor, _ in conexoes]
+    return conexoes, snapshots
 
 
 def test_entrar_senta_no_primeiro_assento_livre() -> None:
@@ -225,6 +246,26 @@ def test_responder_fora_de_hora_e_recusado() -> None:
             assert isinstance(await receber(conexoes[respondente][0]), Erro)
             assert servidor.jogo.mao.carta_trunfo is not None
             assert servidor.jogo.mao.carta_trunfo.texto() == preparado
+            await fechar(*conexoes)
+
+    asyncio.run(cenario())
+
+
+def test_jogada_ilegal_vira_erro_so_para_quem_jogou() -> None:
+    async def cenario() -> None:
+        async with mesa() as (servidor, porta):
+            conexoes, snapshots = await mesa_pronta(porta)
+            vez = snapshots[0].vez
+            assert vez is not None
+            fora = (vez + 1) % 4
+
+            await enviar(conexoes[fora][1], Jogar(Carta.de_texto(snapshots[fora].mao[0])))
+
+            assert await receber(conexoes[fora][0]) == Erro("fora_da_vez")
+            for i, (leitor, _) in enumerate(conexoes):
+                if i != fora:
+                    await nada(leitor)
+            assert servidor.jogo.mao.vez == vez
             await fechar(*conexoes)
 
     asyncio.run(cenario())
