@@ -49,10 +49,15 @@ class Servidor:
                     if self._em_uso(mensagem.nome):
                         await self._enviar(escritor, Erro("nome_em_uso"))
                         continue
-                    if None not in self.nomes:
+                    reservado = self._reservado(mensagem.nome)
+                    if reservado is not None:
+                        self.conexoes[reservado] = escritor
+                        assento = reservado
+                    elif None in self.nomes:
+                        assento = self._sentar(mensagem.nome, escritor)
+                    else:
                         await self._enviar(escritor, Erro("mesa_cheia"))
                         continue
-                    assento = self._sentar(mensagem.nome, escritor)
                     await self._transmitir()
                 elif isinstance(mensagem, Jogar):
                     if assento is None:
@@ -98,6 +103,17 @@ class Servidor:
         return any(
             guardado == nome and conexao is not None
             for guardado, conexao in zip(self.nomes, self.conexoes)
+        )
+
+    def _reservado(self, nome: str) -> int | None:
+        """O assento do nome cujo dono caiu, ou `None`."""
+        return next(
+            (
+                assento
+                for assento, guardado in enumerate(self.nomes)
+                if guardado == nome and self.conexoes[assento] is None
+            ),
+            None,
         )
 
     def _respondente(self) -> int | None:
