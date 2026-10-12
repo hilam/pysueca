@@ -56,3 +56,10 @@ def test_as_de_trunfo_vence_qualquer_carta() -> None:
     for naipe_puxado in Naipe:
         for outra in outras:
             assert as_de_trunfo.vence(outra, naipe_puxado, Naipe.COPAS)
+
+
+def test_entre_trunfos_vence_a_maior() -> None:
+    sete_de_trunfo = Carta(Naipe.COPAS, Valor.SETE)
+    rei_de_trunfo = Carta(Naipe.COPAS, Valor.REI)
+    assert sete_de_trunfo.vence(rei_de_trunfo, Naipe.COPAS, Naipe.COPAS)
+    assert not rei_de_trunfo.vence(sete_de_trunfo, Naipe.COPAS, Naipe.COPAS)
