@@ -57,8 +57,12 @@ _CAMPOS: dict[str, dict[str, type | tuple[type, ...]]] = {
 def _validar(tipo: str, dados: dict) -> str | None:
     """O motivo da recusa do corpo da mensagem, ou `None` se a forma está correta."""
     esperados = _CAMPOS[tipo]
+    if set(dados) - {"tipo"} - set(esperados):
+        return "campo_extra"
+    if not {"tipo", *esperados} <= set(dados):
+        return "campo_faltando"
     for campo, tipo_esperado in esperados.items():
-        if not isinstance(dados.get(campo), tipo_esperado):
+        if not isinstance(dados[campo], tipo_esperado):
             return "campo_faltando"
     return None
 
