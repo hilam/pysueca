@@ -50,3 +50,11 @@ def test_mao_normal_soma_uma_partida_a_dupla_vencedora() -> None:
 
     assert jogo.encerrar_mao() is Resultado.NORMAL
     assert jogo.partidas == [1, 0]
+
+
+def test_quilo_soma_duas_partidas_a_dupla_1() -> None:
+    jogo = Jogo(random.Random(1), embaralhador=0)
+    jogo.mao = _MaoDePlacar((29, 91))
+
+    assert jogo.encerrar_mao() is Resultado.QUILO
+    assert jogo.partidas == [0, 2]
