@@ -91,6 +91,15 @@ def test_bandeira_encerra_o_jogo_na_hora() -> None:
     assert jogo.vencedor == 0
 
 
+def test_quilo_nao_encerra_o_jogo() -> None:
+    jogo = Jogo(random.Random(1), embaralhador=0)
+    jogo.mao = _MaoDePlacar((100, 20))
+
+    jogo.encerrar_mao()
+    assert jogo.partidas == [2, 0]
+    assert jogo.encerrado is False
+
+
 def test_papeis_andam_um_assento_por_mao() -> None:
     jogo = Jogo(random.Random(7), embaralhador=0)
     jogo.preparar(cima=True)
