@@ -204,3 +204,27 @@ def test_setas_movem_a_selecao_e_enter_joga_a_carta() -> None:
         assert await falso.proxima() == Jogar(Carta.de_texto("AC"))
 
     rodar("Ana", cenario)
+
+
+def test_a_selecao_nao_passa_dos_limites_da_mao() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H", "AC", "QS"],
+                vez=0,
+            )
+        )
+        await aguardar(pilot, lambda: painel(app, "#mao") != "")
+        await pilot.press("left")
+        await pilot.pause()
+        assert indice_destacado(app) == 0
+        for _ in range(4):
+            await pilot.press("right")
+            await pilot.pause()
+        assert indice_destacado(app) == 2
+        await pilot.press("enter")
+        assert await falso.proxima() == Jogar(Carta.de_texto("QS"))
+
+    rodar("Ana", cenario)
