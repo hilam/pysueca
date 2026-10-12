@@ -72,6 +72,7 @@ def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
         trunfo=carta_trunfo.naipe.value if carta_trunfo is not None else None,
         carta_trunfo=carta_trunfo.texto() if carta_trunfo is not None else None,
         vez=mao.vez if carta_trunfo is not None else None,
+        respondente=None if carta_trunfo is not None else (mao.embaralhador + 1) % 4,
         vaza=[(a, c.texto()) for a, c in (mao.vaza.jogadas if mao.vaza else [])],
         partidas=list(jogo.partidas),
         encerrado=jogo.encerrado,
