@@ -152,6 +152,7 @@ class SuecaApp(App[None]):
         Binding("left", "selecionar(-1)", "Anterior"),
         Binding("right", "selecionar(1)", "Próxima"),
         Binding("enter", "jogar", "Jogar"),
+        Binding("d", "toggle_dark", "Tema"),
     ]
 
     def __init__(self, host: str, porta: int, nome: str) -> None:
