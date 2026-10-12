@@ -4,7 +4,7 @@ import random
 
 from pysueca.baralho import Baralho
 from pysueca.carta import Carta, Naipe, Valor
-from pysueca.motor import Mao, Vaza
+from pysueca.motor import ErroJogada, Mao, Vaza
 
 
 def test_trunfo_vence_o_naipe_puxado() -> None:
@@ -82,3 +82,17 @@ def test_ao_puxar_qualquer_carta_e_aceita() -> None:
     assert mao.vaza.naipe_puxado is carta.naipe
     assert carta not in mao.maos[0]
     assert mao.vez == 1
+
+
+def test_assento_com_o_naipe_puxado_e_obrigado_a_joga_lo() -> None:
+    mao = Mao(0, random.Random(1))
+    mao.preparar()
+
+    copas = Carta(Naipe.COPAS, Valor.AS)
+    paus = Carta(Naipe.PAUS, Valor.SETE)
+    mao.maos[0] = [copas, paus]
+    mao.vez = 0
+    mao.vaza = Vaza(Naipe.COPAS, mao.trunfo, [(1, Carta(Naipe.COPAS, Valor.REI))])
+
+    assert mao.jogar(0, paus) is ErroJogada.NAO_SEGUIU_NAIPE
+    assert paus in mao.maos[0]
