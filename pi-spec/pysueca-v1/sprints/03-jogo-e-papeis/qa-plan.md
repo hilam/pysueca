@@ -38,7 +38,7 @@
 
 ### Test: Quilo soma duas partidas à dupla vencedora
 **Traces**: `sprints/03-jogo-e-papeis/specs/jogo/spec.md` → Requirement: Placar de partidas — CRITICAL
-- **GIVEN** um `Jogo` com a mão corrente valendo 41 a 79 para a dupla dos assentos 1 e 3
+- **GIVEN** um `Jogo` com a mão corrente valendo 29 a 91 para a dupla dos assentos 1 e 3
 - **WHEN** `Jogo.encerrar_mao()` soma a mão
 - **THEN** `Jogo.partidas` é `[0, 2]`
 
