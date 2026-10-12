@@ -158,3 +158,13 @@ def test_jogada_fora_da_vez_vira_erro() -> None:
 
     assert erro == ErroJogada.FORA_DA_VEZ
     assert erro_de_jogada(erro) == Erro("fora_da_vez")
+
+
+def test_carta_fora_da_mao_vira_erro() -> None:
+    jogo = Jogo(random.Random(7), embaralhador=0)
+    jogo.preparar(cima=True)
+
+    erro = jogo.jogar(0, jogo.mao.maos[1][0])
+
+    assert erro == ErroJogada.CARTA_FORA_DA_MAO
+    assert erro_de_jogada(erro) == Erro("carta_fora_da_mao")
