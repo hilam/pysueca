@@ -199,3 +199,32 @@ def test_responder_prepara_a_mao_e_distribui_dez_cartas() -> None:
             await fechar(*conexoes)
 
     asyncio.run(cenario())
+
+
+def test_responder_fora_de_hora_e_recusado() -> None:
+    async def cenario() -> None:
+        async with mesa() as (servidor, porta):
+            ana, ana_escritor = await sentar(porta, "Ana")
+            await drenar(ana)
+            await enviar(ana_escritor, Responder(True))
+
+            assert isinstance(await receber(ana), Erro)
+
+            outros = [await sentar(porta, nome) for nome in ("Bia", "Caio", "Duda")]
+            conexoes = [(ana, ana_escritor), *outros]
+            inicial = await drenar(ana)
+            respondente = inicial.respondente
+            assert respondente is not None
+
+            await enviar(conexoes[respondente][1], Responder(True))
+            snapshots = [await drenar(leitor) for leitor, _ in conexoes]
+            preparado = snapshots[0].carta_trunfo
+            assert preparado is not None
+
+            await enviar(conexoes[respondente][1], Responder(False))
+            assert isinstance(await receber(conexoes[respondente][0]), Erro)
+            assert servidor.jogo.mao.carta_trunfo is not None
+            assert servidor.jogo.mao.carta_trunfo.texto() == preparado
+            await fechar(*conexoes)
+
+    asyncio.run(cenario())
