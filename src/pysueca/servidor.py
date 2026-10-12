@@ -59,6 +59,8 @@ class Servidor:
                         erro = self.jogo.jogar(assento, mensagem.carta)
                         if erro is not None:
                             await self._enviar(escritor, erro_de_jogada(erro))
+                        else:
+                            await self._transmitir()
                 elif isinstance(mensagem, Responder):
                     if assento is None:
                         await self._enviar(escritor, Erro("nao_sentado"))
