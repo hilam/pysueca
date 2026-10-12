@@ -47,3 +47,11 @@ def test_preparacao_distribui_10_cartas_por_assento() -> None:
     todas = [carta for m in mao.maos for carta in m]
     assert len(set(todas)) == 40
     assert set(todas) == set(Baralho().cartas)
+
+
+def test_carta_do_trunfo_fica_com_o_dador() -> None:
+    mao = Mao(0, random.Random(42))
+    mao.preparar(cima=True)
+
+    assert mao.carta_trunfo in mao.maos[3]
+    assert mao.trunfo is mao.carta_trunfo.naipe
