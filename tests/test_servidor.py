@@ -281,7 +281,7 @@ def test_responder_fora_de_hora_e_recusado() -> None:
             await drenar(ana)
             await enviar(ana_escritor, Responder(True))
 
-            assert isinstance(await receber(ana), Erro)
+            assert await receber(ana) == Erro("mesa_incompleta")
 
             outros = [await sentar(porta, nome) for nome in ("Bia", "Caio", "Duda")]
             conexoes = [(ana, ana_escritor), *outros]
@@ -295,7 +295,7 @@ def test_responder_fora_de_hora_e_recusado() -> None:
             assert preparado is not None
 
             await enviar(conexoes[respondente][1], Responder(False))
-            assert isinstance(await receber(conexoes[respondente][0]), Erro)
+            assert await receber(conexoes[respondente][0]) == Erro("fora_de_hora")
             assert servidor.jogo.mao.carta_trunfo is not None
             assert servidor.jogo.mao.carta_trunfo.texto() == preparado
             await fechar(*conexoes)
