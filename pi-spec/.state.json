@@ -1,6 +1,6 @@
 {
   "iniciativa": "pysueca-v1",
-  "fase": "sprint-verificacao",
+  "fase": "sprints",
   "plano": {
     "status": "aprovado"
   },
@@ -11,6 +11,6 @@
     "01-carta-e-baralho": "concluida",
     "02-vaza-e-mao": "concluida",
     "03-jogo-e-papeis": "concluida",
-    "04-protocolo": "proposta"
+    "04-protocolo": "concluida"
   }
 }
