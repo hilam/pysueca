@@ -55,8 +55,13 @@ class Servidor:
                     if assento is None:
                         await self._enviar(escritor, Erro("nao_sentado"))
                     elif isinstance(mensagem, Responder):
-                        self.jogo.preparar(mensagem.cima)
-                        await self._transmitir()
+                        if None in self.nomes:
+                            await self._enviar(escritor, Erro("mesa_incompleta"))
+                        elif self._respondente() != assento:
+                            await self._enviar(escritor, Erro("fora_de_hora"))
+                        else:
+                            self.jogo.preparar(mensagem.cima)
+                            await self._transmitir()
                 elif isinstance(mensagem, (Estado, Erro)):
                     await self._enviar(escritor, Erro("mensagem_invalida"))
         finally:
@@ -76,6 +81,12 @@ class Servidor:
             guardado == nome and conexao is not None
             for guardado, conexao in zip(self.nomes, self.conexoes)
         )
+
+    def _respondente(self) -> int | None:
+        """O assento que deve responder cima ou baixo, ou `None` com a mão preparada."""
+        if getattr(self.jogo.mao, "carta_trunfo", None) is not None:
+            return None
+        return (self.jogo.embaralhador + 1) % 4
 
     async def _enviar(self, escritor: asyncio.StreamWriter, mensagem: Mensagem) -> None:
         escritor.write(serializar(mensagem))
