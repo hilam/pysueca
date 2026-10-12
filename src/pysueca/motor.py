@@ -158,13 +158,18 @@ class Jogo:
         resultado = self.mao.resultado
         if self.encerrado:
             return resultado
-        if resultado is not Resultado.EMPATE:
-            dupla = 0 if self.mao.pontos[0] > self.mao.pontos[1] else 1
-            self.partidas[dupla] += resultado.partidas
+        self._somar_placar(resultado)
         if not self.encerrado:
             self.embaralhador = (self.embaralhador + 1) % 4
             self.mao = Mao(self.embaralhador, self.rng)
         return resultado
+
+    def _somar_placar(self, resultado: Resultado) -> None:
+        """Soma à dupla vencedora as partidas da mão; empate não muda o placar."""
+        if resultado is Resultado.EMPATE:
+            return
+        pontos = self.mao.pontos
+        self.partidas[0 if pontos[0] > pontos[1] else 1] += resultado.partidas
 
     @property
     def encerrado(self) -> bool:
