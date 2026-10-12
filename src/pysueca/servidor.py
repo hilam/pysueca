@@ -11,6 +11,7 @@ from pysueca.protocolo import (
     Erro,
     Estado,
     Jogar,
+    LinhaLonga,
     Mensagem,
     Responder,
     desserializar,
@@ -41,7 +42,10 @@ class Servidor:
         assento: int | None = None
         try:
             while True:
-                linha = await leitor.readline()
+                try:
+                    linha = await leitor.readline()
+                except (ValueError, LinhaLonga):
+                    break
                 if not linha:
                     break
                 mensagem = desserializar(linha)
