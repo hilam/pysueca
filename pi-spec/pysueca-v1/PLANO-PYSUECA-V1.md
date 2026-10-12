@@ -4,7 +4,7 @@
 
 Uma mesa de Sueca para quatro jogadores em terminais diferentes: um servidor headless dono das regras, quatro clientes Textual que mandam intenções e desenham o estado que recebem. O motor de regras é puro e síncrono (sem `asyncio`, sem Textual), a rede é TCP com JSON de uma linha e snapshot completo, e o harness de teste é 4 clientes + 1 servidor em `localhost` — não existe modo hot-seat. Vocabulário em `CONTEXT.md`, regras em `README.md`, decisões em `docs/adr/0001`–`0005`.
 
-**Feito até agora:** esqueleto Textual em `src/pysueca/main.py` (57 linhas, substituído na sprint 06), 40 PNGs sem uso em `src/pysueca/imagens/`, `pyproject.toml` com Textual e dev-tools (pytest, ruff, mypy, bandit) e duas entrypoints, uma delas quebrada (`pyproject.toml:12`). Não existe `tests/`, `AGENTS.md` nem código de regra.
+**Feito até agora:** esqueleto Textual em `src/pysueca/main.py` (57 linhas, substituído na sprint 06), 40 PNGs sem uso em `docs/imagens/`, `pyproject.toml` com Textual e dev-tools (pytest, ruff, mypy, bandit) e duas entrypoints, uma delas quebrada (`pyproject.toml:12`). Não existe `tests/`, `AGENTS.md` nem código de regra.
 
 ---
 
