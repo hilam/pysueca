@@ -51,6 +51,7 @@ class Mao:
         self.maos: list[list[Carta]] = [[], [], [], []]
         self.vez = embaralhador
         self.vaza: Vaza | None = None
+        self.vazas: list[Vaza] = []
 
     def preparar(self, cima: bool = True) -> None:
         baralho = Baralho(self.rng)
@@ -65,6 +66,7 @@ class Mao:
         self.maos[dador].append(self.carta_trunfo)
         self.vez = self.embaralhador
         self.vaza = None
+        self.vazas = []
 
     def jogar(self, assento: int, carta: Carta) -> ErroJogada | None:
         if self.vaza is not None and not jogada_legal(
@@ -76,5 +78,10 @@ class Mao:
             self.vaza = Vaza(carta.naipe, self.trunfo, [(assento, carta)])
         else:
             self.vaza.jogadas.append((assento, carta))
-        self.vez = (assento + 1) % 4
+        if len(self.vaza.jogadas) == 4:
+            self.vazas.append(self.vaza)
+            self.vez = self.vaza.vencedor
+            self.vaza = None
+        else:
+            self.vez = (assento + 1) % 4
         return None
