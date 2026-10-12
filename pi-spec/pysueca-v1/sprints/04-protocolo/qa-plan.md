@@ -28,6 +28,12 @@
 - **WHEN** é serializado e desserializado
 - **THEN** volta um `Estado` igual ao original, com todos os campos preservados
 
+### Test: erro faz ida-e-volta
+**Traces**: `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Mensagens de fio — CRITICAL
+- **GIVEN** um `Erro` vindo de `erro_de_jogada(ErroJogada.FORA_DA_VEZ)`
+- **WHEN** é serializado e desserializado
+- **THEN** volta `Erro("fora_da_vez")`
+
 ### Test: EDGE - linha malformada vira erro
 **Traces**: `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável — EDGE
 - **GIVEN** as linhas `"{"`, `"não é json"` e `"[1, 2]"` (JSON que não é objeto)
@@ -51,6 +57,12 @@
 - **GIVEN** a linha `{"tipo": "jogar", "carta": "7H", "cor": "azul"}`
 - **WHEN** `desserializar` a lê
 - **THEN** devolve `Erro` com motivo `campo_extra`
+
+### Test: EDGE - campo com tipo errado vira erro
+**Traces**: `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável — EDGE
+- **GIVEN** a linha `{"tipo": "jogar", "carta": 7}`
+- **WHEN** `desserializar` a lê
+- **THEN** devolve `Erro` com motivo `campo_invalido`
 
 ### Test: nome é normalizado
 **Traces**: `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável — CRITICAL
@@ -129,7 +141,7 @@
 - O teto conta **bytes** UTF-8, não caracteres: um nome multibyte no limite muda a conta; a linha inclui o `\n`.
 - `linha no limite` prova a fronteira fechada (`len(linha) == TETO_LINHA` aceita, `+ 1` fatal).
 - JSON que não é objeto (`[1, 2]`, `42`, `"texto"`) é recusa, não crash.
-- Campo com o tipo errado (`"carta": 7`, `"cima": "sim"`, `"nome": 42`) é recusa, não crash — a validação checa tipo, não só presença.
+- Campo com o tipo errado (`"carta": 7`, `"cima": "sim"`, `"nome": 42`) vira `campo_invalido` (não `campo_faltando`), e é recusa, não crash — a validação checa tipo, não só presença.
 - Campo extra é recusa (`campo_extra`), distinta de campo faltando (`campo_faltando`): a validação compara o conjunto exato de chaves.
 - As cartas alheias não podem aparecer **em campo algum** da linha serializada, não só no campo `mao` (o teste varre a string inteira).
 - Nome no limite de 20 caracteres é aceito; 21 é recusado; espaços em volta não contam para o limite.
@@ -149,5 +161,6 @@
 - **Cobertura, não RED:** os três testes de `erro_de_jogada` compartilham a mesma função de uma linha (mapa `ErroJogada → motivo`); o primeiro fica RED e os outros dois provam o mapa com entradas diferentes. O EDGE "snapshot reflete a mesa" cobre os campos que o RED de "própria mão" já introduz — registrar como cobertura, não inflar a implementação para forçar vermelho (lição das sprints 01–03).
 - **Mascaramento é requisito de segurança do fio:** o teste procura as cartas alheias na **linha serializada inteira**, não só no campo `mao` — um vazamento em `vaza`, `contagens` ou qualquer campo novo falha o teste.
 - **Resolvido no grill:** campo extra recusado com motivo `campo_extra`; `Estado.respondente` entra nesta sprint; o `erro` carrega só `motivo` (sem `detalhe` humano); `TETO_LINHA = 4096` aplicado só na leitura. Nada ficou pendente para `pi-atualizar`.
+- **Retrabalho da verificação (2026-10-12):** `erro faz ida-e-volta` e `EDGE - campo com tipo errado vira erro` fecham as 3 linhas que o `execucao/04-protocolo/relatorio-verificacao.md` deixou descobertas; `campo_invalido` nasce aqui e a decisão 9 do `design.md` acompanha.
 - **Cobertura dos testes novos:** `campo extra vira erro` e `snapshot diz quem deve responder` ancoram decisões que não existiam na primeira proposta; se algum falhar, a decisão do grill não chegou ao código.
 - **Fixtures reais:** o snapshot usa um `Jogo` real com `random.Random(seed)`, não um dicionário montado à mão — o mesmo padrão das sprints 02/03 (`Mao` de placar forçado só no teste).

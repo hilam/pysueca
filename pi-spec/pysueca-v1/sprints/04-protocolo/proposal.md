@@ -9,8 +9,9 @@ O motor inteiro existe (`Jogo` em `motor.py:141`), mas nada o atravessa: não h�
 
 ## O que muda
 
-- **`src/pysueca/protocolo.py`** (novo) — as mensagens (`entrar`, `responder`, `jogar`, `estado`, `erro`), o codec de uma linha JSON em bytes UTF-8 (`serializar`/`desserializar`), o teto de bytes por linha, a validação estrita (linha malformada, tipo desconhecido, campo faltando, campo extra, nome) e o snapshot `estado` por assento (própria mão + contagem das outras + `respondente` da pergunta cima/baixo).
-- **`tests/test_protocolo.py`** (novo) — ida-e-volta das mensagens, o mascaramento do snapshot, a recusa recuperável (vira `erro`) e o teto de bytes como único caso fatal. Sem `asyncio`, sem socket, sem Textual.
+- **`src/pysueca/protocolo.py`** (novo) — as mensagens (`entrar`, `responder`, `jogar`, `estado`, `erro`), o codec de uma linha JSON em bytes UTF-8 (`serializar`/`desserializar`), o teto de bytes por linha, a validação estrita (linha malformada, tipo desconhecido, campo faltando, campo extra, campo com tipo errado e nome) e o snapshot `estado` por assento (própria mão + contagem das outras + `respondente` da pergunta cima/baixo).
+- **`tests/test_protocolo.py`** (novo) — ida-e-volta das mensagens (incluindo `erro`), o mascaramento do snapshot, a recusa recuperável (vira `erro`) e o teto de bytes como único caso fatal. Sem `asyncio`, sem socket, sem Textual.
+- **Retrabalho da verificação** — `campo_invalido` como motivo próprio para campo presente com tipo errado, o teste de ida-e-volta de `erro`, `pytest-cov` no grupo `dev` com gate de 80% em comando dedicado e o `git mv` de `src/pysueca/imagens/` para `docs/imagens/`.
 
 Nenhum arquivo do motor muda: `protocolo.py` reusa `Carta.texto`/`de_texto` (`carta.py:71,75`), o `ErroJogada` (`motor.py:13`) e lê o estado do `Jogo` (`motor.py:141`). Nenhuma dependência nova (`docs/adr/0004`).
 
@@ -34,7 +35,9 @@ Nenhum arquivo do motor muda: `protocolo.py` reusa `Carta.texto`/`de_texto` (`ca
 | `tests/test_motor.py`, `tests/test_jogo.py` | sem mudança; o snapshot os consome como fixtures reais |
 | `tests/test_protocolo.py` | arquivo novo |
 | `src/pysueca/main.py:52` | intocado; `uv run mypy src` continua vermelho por `App.dark` (pré-existente, sprint 06) |
-| `pyproject.toml:6-12` | sem mudança; nenhuma dependência nova (`docs/adr/0004`) e o entrypoint quebrado continua fora de escopo |
+| `pyproject.toml:18-24` | grupo `dev` ganha `pytest-cov`; runtime intocado (`docs/adr/0004`) e o entrypoint quebrado continua fora de escopo |
+| `AGENTS.md`, `docs/adr/0004`, `PLANO-PYSUECA-V1.md` | referências a `src/pysueca/imagens/` passam para `docs/imagens/`; `AGENTS.md` ganha o comando com o gate de cobertura |
+| `src/pysueca/imagens/` → `docs/imagens/` | `git mv` da pasta inteira (PNGs + `get_images.py`), fora do pacote e do escopo de `--cov=pysueca` |
 
 Consumidores futuros: o servidor (05) chama `desserializar` a cada linha, `serializar` a cada envio e `estado(jogo, nomes, assento)` a cada snapshot; a TUI (06) desserializa `estado`/`erro` e serializa as intenções. O teto de bytes vira a defesa de leitura do socket (05), onde o caso fatal de fato fecha a conexão.
 

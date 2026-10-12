@@ -53,13 +53,19 @@ Campos do `Estado` (os "não ditos" ficam nas Questões Abertas):
 Critério: fecha a fronteira da sprint 02 (decisão 3) — o motor decide o erro, o protocolo dá o identificador de fio. Os três motivos (`fora_da_vez`, `carta_fora_da_mao`, `nao_seguiu_naipe`) são os `ErroJogada` existentes (`motor.py:16-18`), sem enum novo. Alternativa rejeitada: o protocolo revalidar vez/posse/naipe para "ajudar" — duplicaria a regra e criaria duas verdades.
 
 **9. O `erro` carrega `motivo` (identificador estável), não texto humano; e campo extra é recusado.**
-Critério: o cliente é nosso e a tela (07) escolhe o texto; um `detalhe` humano no fio seria a mesma string em três lugares. Os motivos de fio são `json_invalido`, `tipo_desconhecido`, `campo_faltando`, `campo_extra` e `nome_invalido`; os de jogada vêm de `erro_de_jogada`. A validação estrita recusa o campo que o protocolo não conhece (`campo_extra`), porque os dois lados saem do mesmo repositório e da mesma versão — campo extra é digitação, não compatibilidade futura. Alternativa rejeitada: mensagem pronta no servidor — engessa o texto e mistura apresentação com transporte. Alternativa rejeitada: ignorar campos extras — engoliria o typo do cliente em silêncio.
+Critério: o cliente é nosso e a tela (07) escolhe o texto; um `detalhe` humano no fio seria a mesma string em três lugares. Os motivos de fio são `json_invalido`, `tipo_desconhecido`, `campo_faltando`, `campo_extra`, `campo_invalido` e `nome_invalido`; os de jogada vêm de `erro_de_jogada`. A validação estrita recusa o campo que o protocolo não conhece (`campo_extra`), porque os dois lados saem do mesmo repositório e da mesma versão — campo extra é digitação, não compatibilidade futura. Campo presente com o tipo errado recebe `campo_invalido`, distinto de `campo_faltando` (ausente) e de `campo_extra` (a mais) — a mensagem aponta o defeito certo. Alternativa rejeitada: mensagem pronta no servidor — engessa o texto e mistura apresentação com transporte. Alternativa rejeitada: ignorar campos extras — engoliria o typo do cliente em silêncio.
 
 **10. O codec fala `bytes`, não `str`.**
 `serializar` devolve a linha UTF-8 terminada em `\n`; `desserializar` aceita os bytes lidos, e a fatal é a exceção `LinhaLonga`. Critério: o teto é contado em bytes e o socket da 05 é `StreamReader`/`StreamWriter` (`bytes`) — o casamento é direto, sem codificar/decodificar a cada linha. Alternativa rejeitada: `str` — a 05 decodificaria toda linha e o teto passaria a contar caracteres, não bytes. Alternativa rejeitada: sentinela no retorno em vez de exceção — o `match` da 05 ganharia um ramo e um tipo próprio só para o caso fatal.
 
 **11. O `Estado` não carrega a fase da mesa e tolera a mão não preparada.**
 Critério: "espera" (faltam jogadores) e "congelada" (conexão caída) são estado de conexão/assento — dono é a 05, não o `Jogo`; a 04 não inventa estado de servidor. Depois de `encerrar_mao`, o `Jogo` cria uma `Mao` não preparada (`motor.py:165`) que ainda não tem `trunfo`/`carta_trunfo`; o snapshot devolve `None` nesses campos e `contagens` zeradas, e o cliente (06) lê isso como "mão ainda não começou". Alternativa rejeitada: `fase: "espera"|"jogo"|"fim"` — "espera" e "congelada" não seriam representáveis sem trazer o modelo de conexão para a 04.
+
+**12. A cobertura é medida com `pytest-cov` e tem gate de 80% num comando dedicado.**
+Critério: o grupo `dev` já carrega `pytest`, `mypy`, `ruff` e `bandit` — ferramentas de desenvolvimento, não runtime —, então `pytest-cov` não fere o ADR 0004, que trata das dependências do jogo. O gate vive em `uv run pytest --cov=pysueca --cov-fail-under=80`, separado do `uv run pytest` comum, porque um `addopts` global quebraria `uv run pytest tests/test_carta.py -q` (comando do próprio `AGENTS.md`) por cobertura parcial de um arquivo só. Alternativa rejeitada: medir com `trace` (stdlib) — foi o que o relatório da verificação usou, e é um script manual a cada verificação. Alternativa rejeitada: `addopts` no `pyproject.toml` — o gate passaria a valer para qualquer execução por arquivo.
+
+**13. As imagens saem de `src/pysueca/` para `docs/imagens/`.**
+Critério: os PNGs nunca são carregados pelo jogo (o ADR 0004 decidiu cartas em texto) e `imagens/get_images.py` é um script de coleta sem teste; deixá-los dentro do pacote os põe no escopo de `--cov=pysueca` sem acrescentar nada ao runtime. Em `docs/imagens/` continuam versionados como material do futuro modo imagem, e o `git mv` (com as referências de `AGENTS.md`, `PLANO` e `docs/adr/0004`) preserva o histórico. Alternativa rejeitada: apagar as imagens — o PLANO as mantém como opção futura e o ADR 0004 as cita.
 
 ## Riscos / Compensações
 
@@ -71,6 +77,7 @@ Critério: "espera" (faltam jogadores) e "congelada" (conexão caída) são esta
 | Validação estrita travar a evolução do formato entre 04 e 06 | os dois lados saem do mesmo repositório e da mesma versão; campo novo entra com spec própria e campo extra é recusado (decisão 9) |
 | JSON aceitar tipo errado (`"carta": 7`, `"cima": "sim"`) | a validação de shape checa tipo de cada campo obrigatório, não só presença; cenário de campo faltando cobre o caminho |
 | `desserializar` engolir erro e devolver `Erro` onde o chamador esperava exceção | assinatura explícita `Mensagem | Erro`; só `LinhaLonga` é exceção, e o EDGE "nenhum outro erro é fatal" ancora |
+| O gate global de 80% medir `main.py` (sem teste até a 06) e reprovar | mover `imagens/` para `docs/` tira `get_images.py` do escopo de `--cov=pysueca`; `main.py` é ~10% das linhas executáveis, então o pacote segue acima de 80% com o motor e o protocolo quase completos; se reprovar, o número volta ao grill — não se exclui módulo do gate |
 
 ## Plano de Migração
 
@@ -86,3 +93,9 @@ Nenhuma — as pendências fecharam no grill:
 - `TETO_LINHA = 4096`, aplicado só na leitura (decisão 4).
 - Sem `fase` no `Estado`; a fase da mesa e o `congelada` ficam para a 05 (decisão 11).
 - O codec fala `bytes` (UTF-8 com `\n`) e a fatal é a exceção `LinhaLonga` (decisão 10).
+
+**Retrabalho da verificação (2026-10-12)** — três itens do `execucao/04-protocolo/relatorio-verificacao.md` voltaram para esta sprint:
+
+- Campo com tipo errado ganha motivo próprio `campo_invalido` (decisão 9), e o `erro` ganha teste de ida-e-volta — fecha as 3 linhas descobertas.
+- `pytest-cov` no grupo `dev` com gate de 80% em comando dedicado (decisão 12).
+- `src/pysueca/imagens/` vai para `docs/imagens/` (decisão 13), mantendo os PNGs como opção futura.

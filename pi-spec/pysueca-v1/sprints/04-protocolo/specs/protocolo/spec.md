@@ -23,8 +23,12 @@ O protocolo SHALL representar as mensagens do jogo como uma linha JSON em bytes 
 - **WHEN** um snapshot `estado` é serializado e desserializado
 - **THEN** volta o mesmo snapshot, com os mesmos assentos, mãos, contagens, trunfo, vaza e placar
 
+#### Scenario: erro faz ida-e-volta
+- **WHEN** uma mensagem `erro` com um motivo é serializada e desserializada
+- **THEN** volta a mesma mensagem `erro` com o mesmo motivo
+
 ### Requirement: Validação estrita recuperável
-O protocolo SHALL recusar com uma mensagem `erro` a linha que não é JSON, o JSON que não é objeto, o tipo desconhecido, a mensagem à qual falte campo obrigatório e a mensagem com campo que o protocolo não conhece; a recusa MUST NOT ser fatal, e a mesa SHALL seguir. O nome de `entrar` SHALL ser normalizado com `strip` antes de virar identidade e MUST ter de 1 a 20 caracteres; nome vazio depois do `strip` ou com mais de 20 caracteres SHALL virar `erro`.
+O protocolo SHALL recusar com uma mensagem `erro` a linha que não é JSON, o JSON que não é objeto, o tipo desconhecido, a mensagem à qual falte campo obrigatório, a mensagem com campo que o protocolo não conhece e a mensagem cujo campo obrigatório tem tipo inválido; a recusa MUST NOT ser fatal, e a mesa SHALL seguir. O nome de `entrar` SHALL ser normalizado com `strip` antes de virar identidade e MUST ter de 1 a 20 caracteres; nome vazio depois do `strip` ou com mais de 20 caracteres SHALL virar `erro`.
 
 #### Scenario: linha malformada vira erro
 - **WHEN** uma linha que não é JSON é desserializada
@@ -41,6 +45,10 @@ O protocolo SHALL recusar com uma mensagem `erro` a linha que não é JSON, o JS
 #### Scenario: campo extra vira erro
 - **WHEN** uma linha `jogar` traz um campo que o protocolo não conhece
 - **THEN** devolve uma mensagem `erro` com motivo `campo_extra`
+
+#### Scenario: campo com tipo errado vira erro
+- **WHEN** uma linha `jogar` traz o campo `carta` com um valor que não é texto
+- **THEN** devolve uma mensagem `erro` com motivo `campo_invalido`
 
 #### Scenario: nome é normalizado
 - **WHEN** um `entrar` traz um nome com espaços em volta

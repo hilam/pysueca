@@ -110,6 +110,32 @@
 - [x] 8.3 Suite completa uma última vez: `uv run pytest`
 - [x] 8.4 Commit de ajustes finais: `style: aplica lint e formatação`
 
+## 9. Retrabalho de verificação (RED → GREEN)
+
+- [ ] 9.1 Teste do cenário `erro faz ida-e-volta` (RED esperado verde — o codec do `erro` já existe; fecha as 3 linhas descobertas do relatório)
+- [ ] 9.2 Nenhuma implementação nova (GREEN)
+- [ ] 9.3 Commit: `test(04-protocolo): erro faz ida-e-volta`
+
+- [ ] 9.4 Teste do caso limite `EDGE - campo com tipo errado vira erro` (RED)
+- [ ] 9.5 `_validar`: campo com tipo errado passa a devolver `campo_invalido` em vez de `campo_faltando` (GREEN)
+- [ ] 9.6 Commit: `test(04-protocolo): campo com tipo errado vira erro` → `feat(04-protocolo): distingue campo_invalido de campo_faltando`
+
+- [ ] 9.7 Adicionar `pytest-cov` ao grupo `dev` do `pyproject.toml` e instalar (`uv sync`)
+- [ ] 9.8 Commit: `chore(04-protocolo): adiciona pytest-cov às dev-deps`
+
+## 10. Layout: imagens para docs
+
+- [ ] 10.1 `git mv src/pysueca/imagens docs/imagens` e atualizar as referências em `AGENTS.md` (mapa de arquivos), `PLANO-PYSUECA-V1.md` ("Feito até agora") e `docs/adr/0004`
+- [ ] 10.2 Commit: `refactor(04-protocolo): move as imagens para docs/`
+
+## 11. Validação Final (retrabalho)
+
+- [ ] 11.1 `AGENTS.md`: documenta `uv run pytest --cov=pysueca --cov-fail-under=80`
+- [ ] 11.2 Lint e formatação: `uv run ruff check` e `uv run ruff format --check`
+- [ ] 11.3 Tipos: `uv run mypy src`
+- [ ] 11.4 Suite com o gate: `uv run pytest --cov=pysueca --cov-fail-under=80`
+- [ ] 11.5 Re-verificar e atualizar o relatório: `/pi-verificar`
+
 ## Notas de Execução
 
 - **8.2/8.1 (pré-existentes, não regressões):** `uv run mypy src` continua com 1 erro (`main.py:52`, `App.dark`) e `uv run ruff check` com 4 (`main.py` RUF012 ×3 e `imagens/get_images.py` I001) — todos endereçados na sprint 06, que reescreve `main.py`. `protocolo.py` e `test_protocolo.py` passam limpos em `ruff check` e `ruff format --check`.
