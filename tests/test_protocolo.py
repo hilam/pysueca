@@ -74,3 +74,12 @@ def test_campo_extra_vira_erro() -> None:
 def test_linha_acima_do_teto_e_fatal() -> None:
     with pytest.raises(LinhaLonga):
         desserializar(_linha_de_tamanho(TETO_LINHA + 1))
+
+
+def test_linha_no_limite_e_aceita() -> None:
+    assert desserializar(_linha_de_tamanho(TETO_LINHA)) == Entrar("Ana")
+
+
+def test_nenhum_outro_erro_e_fatal() -> None:
+    for linha in (b"{", b'{"tipo": "assobiar"}', b'{"tipo": "jogar"}'):
+        assert isinstance(desserializar(linha), Erro)
