@@ -413,3 +413,31 @@ def test_queda_congela_a_mesa_e_avisa_os_outros_tres() -> None:
             await fechar(*restantes)
 
     asyncio.run(cenario())
+
+
+def test_mesa_congelada_recusa_jogadas() -> None:
+    async def cenario() -> None:
+        async with mesa() as (servidor, porta):
+            conexoes, snapshots = await mesa_pronta(porta)
+            vez = snapshots[0].vez
+            assert vez is not None
+            caido = (vez + 1) % 4
+            conexoes[caido][1].close()
+            await conexoes[caido][1].wait_closed()
+
+            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            for leitor, _ in restantes:
+                assert (await receber_estado(leitor)).ausentes == [caido]
+
+            ativo = next(assento for assento in range(4) if assento != caido)
+            carta = snapshots[ativo].mao[0]
+            await enviar(conexoes[ativo][1], Jogar(Carta.de_texto(carta)))
+            assert await receber(conexoes[ativo][0]) == Erro("mesa_congelada")
+            await enviar(conexoes[ativo][1], Responder(True))
+            assert await receber(conexoes[ativo][0]) == Erro("mesa_congelada")
+
+            assert servidor.jogo.mao.vazas == []
+            assert servidor.jogo.mao.vez == vez
+            await fechar(*restantes)
+
+    asyncio.run(cenario())
