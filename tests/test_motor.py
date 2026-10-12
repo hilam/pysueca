@@ -68,3 +68,17 @@ def test_cima_ou_baixo_escolhe_a_ponta_do_baralho() -> None:
 
     assert cima.carta_trunfo == referencia.cartas[0]
     assert baixo.carta_trunfo == referencia.cartas[-1]
+
+
+def test_ao_puxar_qualquer_carta_e_aceita() -> None:
+    mao = Mao(0, random.Random(1))
+    mao.preparar()
+
+    carta = mao.maos[0][0]
+    assert mao.vez == 0
+    assert mao.jogar(0, carta) is None
+
+    assert mao.vaza is not None
+    assert mao.vaza.naipe_puxado is carta.naipe
+    assert carta not in mao.maos[0]
+    assert mao.vez == 1
