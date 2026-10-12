@@ -50,7 +50,7 @@ class Servidor:
                         await self._enviar(escritor, Erro("mesa_cheia"))
                         continue
                     assento = self._sentar(mensagem.nome, escritor)
-                    await self._enviar(escritor, estado(self.jogo, self.nomes, assento))
+                    await self._transmitir()
                 elif isinstance(mensagem, (Jogar, Responder)):
                     if assento is None:
                         await self._enviar(escritor, Erro("nao_sentado"))
@@ -77,3 +77,15 @@ class Servidor:
     async def _enviar(self, escritor: asyncio.StreamWriter, mensagem: Mensagem) -> None:
         escritor.write(serializar(mensagem))
         await escritor.drain()
+
+    async def _transmitir(self) -> None:
+        """Manda o snapshot de cada assento ocupado, montado antes do primeiro write."""
+        linhas = [
+            (conexao, serializar(estado(self.jogo, self.nomes, assento)))
+            for assento, conexao in enumerate(self.conexoes)
+            if conexao is not None
+        ]
+        for conexao, linha in linhas:
+            conexao.write(linha)
+        for conexao, _ in linhas:
+            await conexao.drain()
