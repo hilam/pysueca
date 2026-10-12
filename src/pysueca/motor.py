@@ -89,6 +89,8 @@ class Mao:
         self.vazas = []
 
     def jogar(self, assento: int, carta: Carta) -> ErroJogada | None:
+        if assento != self.vez:
+            return ErroJogada.FORA_DA_VEZ
         if self.vaza is not None and not jogada_legal(
             self.maos[assento], self.vaza.naipe_puxado, carta
         ):
