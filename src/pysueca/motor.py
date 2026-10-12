@@ -61,6 +61,16 @@ class Resultado(enum.Enum):
             return cls.QUILO
         return cls.NORMAL
 
+    @property
+    def partidas(self) -> int:
+        """Quantas partidas a mão vale para a dupla vencedora."""
+        return {
+            Resultado.EMPATE: 0,
+            Resultado.NORMAL: 1,
+            Resultado.QUILO: 2,
+            Resultado.BANDEIRA: 4,
+        }[self]
+
 
 class Mao:
     """Uma mão completa: preparação, dez vazas e a pontuação."""
