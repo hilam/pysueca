@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pysueca.carta import Carta
+from pysueca.motor import Jogo
 
 TETO_LINHA = 4096
 
@@ -40,6 +41,31 @@ class Erro:
     """Recusa recuperável do protocolo: a mesa segue, o cliente recebe o motivo."""
 
     motivo: str
+
+
+@dataclass(frozen=True)
+class Estado:
+    """Snapshot completo por assento: a própria mão, as outras só como contagem."""
+
+    assentos: list[str | None]
+    mao: list[str]
+    contagens: list[int] = field(default_factory=list)
+    trunfo: str | None = None
+    carta_trunfo: str | None = None
+    vez: int | None = None
+    respondente: int | None = None
+    vaza: list[tuple[int, str]] = field(default_factory=list)
+    partidas: list[int] = field(default_factory=list)
+    encerrado: bool = False
+    vencedor: int | None = None
+
+
+def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
+    """O snapshot da mesa para um assento: a própria mão, as outras só como contagem."""
+    return Estado(
+        assentos=list(nomes),
+        mao=[carta.texto() for carta in jogo.mao.maos[assento]],
+    )
 
 
 def serializar(mensagem: Entrar | Jogar | Responder) -> bytes:
