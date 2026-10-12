@@ -57,6 +57,8 @@ class Servidor:
                 elif isinstance(mensagem, Jogar):
                     if assento is None:
                         await self._enviar(escritor, Erro("nao_sentado"))
+                    elif self._ausentes():
+                        await self._enviar(escritor, Erro("mesa_congelada"))
                     else:
                         erro = self.jogo.jogar(assento, mensagem.carta)
                         if erro is not None:
@@ -68,6 +70,8 @@ class Servidor:
                 elif isinstance(mensagem, Responder):
                     if assento is None:
                         await self._enviar(escritor, Erro("nao_sentado"))
+                    elif self._ausentes():
+                        await self._enviar(escritor, Erro("mesa_congelada"))
                     elif None in self.nomes:
                         await self._enviar(escritor, Erro("mesa_incompleta"))
                     elif self._respondente() != assento:
