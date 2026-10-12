@@ -52,6 +52,21 @@ def desenhar_mao(mao: list[str], selecao: int) -> str:
     )
 
 
+def desenhar_mesa(estado: Estado) -> str:
+    """A carta do trunfo, a vaza corrente com o assento e o placar das duplas."""
+    linhas = [
+        f"Trunfo: {desenhar_carta(estado.carta_trunfo)}"
+        if estado.carta_trunfo is not None
+        else "Trunfo: —"
+    ]
+    for assento, texto in estado.vaza:
+        nome = estado.assentos[assento] or f"assento {assento}"
+        linhas.append(f"{nome}: {desenhar_carta(texto)}")
+    partidas = estado.partidas if len(estado.partidas) >= 2 else [0, 0]
+    linhas.append(f"Placar: {partidas[0]} x {partidas[1]}")
+    return "\n".join(linhas)
+
+
 def desenhar_assentos(estado: Estado) -> str:
     """`N de 4`, os nomes sentados e os assentos vagos."""
     ocupados = [nome for nome in estado.assentos if nome is not None]
@@ -161,6 +176,7 @@ class SuecaApp(App[None]):
         self.estado = estado
         self.aviso_erro = None
         self.query_one("#assentos", Static).update(desenhar_assentos(estado))
+        self.query_one("#mesa", Static).update(desenhar_mesa(estado))
         self.query_one("#mao", Static).update(desenhar_mao(estado.mao, self.selecao))
 
     def avisar(self, motivo: str) -> None:
