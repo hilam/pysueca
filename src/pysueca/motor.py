@@ -37,5 +37,11 @@ class Mao:
     def preparar(self, cima: bool = True) -> None:
         baralho = Baralho(self.rng)
         baralho.embaralhar()
-        for i, carta in enumerate(baralho.cartas):
-            self.maos[i % 4].append(carta)
+        cartas = baralho.cartas
+        self.carta_trunfo = cartas.pop(0 if cima else -1)
+        self.trunfo = self.carta_trunfo.naipe
+        dador = (self.embaralhador + 3) % 4
+        self.maos = [[], [], [], []]
+        for i, carta in enumerate(cartas):
+            self.maos[(dador + 1 + i) % 4].append(carta)
+        self.maos[dador].append(self.carta_trunfo)
