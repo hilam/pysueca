@@ -47,3 +47,12 @@ def test_texto_ida_e_volta_preserva_naipe_e_valor() -> None:
     assert carta.naipe is Naipe.COPAS
     assert carta.valor is Valor.SETE
     assert carta.texto() == "7H"
+
+
+def test_as_de_trunfo_vence_qualquer_carta() -> None:
+    as_de_trunfo = Carta(Naipe.COPAS, Valor.AS)
+    outras = [carta for carta in Baralho().cartas if carta != as_de_trunfo]
+    assert len(outras) == 39
+    for naipe_puxado in Naipe:
+        for outra in outras:
+            assert as_de_trunfo.vence(outra, naipe_puxado, Naipe.COPAS)
