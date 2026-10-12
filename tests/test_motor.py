@@ -110,3 +110,27 @@ def test_sem_o_naipe_puxado_pode_jogar_qualquer_carta() -> None:
 
     assert mao.jogar(0, trunfo) is None
     assert mao.vaza.jogadas[-1] == (0, trunfo)
+
+
+def test_quem_levou_a_vaza_puxa_a_seguinte() -> None:
+    mao = Mao(0, random.Random(1))
+    mao.preparar()
+
+    rei_de_copas = Carta(Naipe.COPAS, Valor.REI)
+    as_de_copas = Carta(Naipe.COPAS, Valor.AS)
+    as_de_paus = Carta(Naipe.PAUS, Valor.AS)
+    as_de_espadas = Carta(Naipe.ESPADAS, Valor.AS)
+    mao.maos[0] = [rei_de_copas]
+    mao.maos[1] = [as_de_copas]
+    mao.maos[2] = [as_de_paus]
+    mao.maos[3] = [as_de_espadas]
+    mao.trunfo = Naipe.OUROS
+    mao.vez = 0
+
+    assert mao.jogar(0, rei_de_copas) is None
+    assert mao.jogar(1, as_de_copas) is None
+    assert mao.jogar(2, as_de_paus) is None
+    assert mao.jogar(3, as_de_espadas) is None
+
+    assert len(mao.vazas) == 1
+    assert mao.vez == 1
