@@ -42,6 +42,26 @@ class Vaza:
         return assento
 
 
+class Resultado(enum.Enum):
+    """O resultado de uma mão pelos limites de pontos do README."""
+
+    EMPATE = "empate"
+    NORMAL = "normal"
+    QUILO = "quilo"
+    BANDEIRA = "bandeira"
+
+    @classmethod
+    def de_pontos(cls, dupla_0_2: int, dupla_1_3: int) -> Resultado:
+        melhor = max(dupla_0_2, dupla_1_3)
+        if melhor == 60:
+            return cls.EMPATE
+        if melhor == 120:
+            return cls.BANDEIRA
+        if melhor >= 91:
+            return cls.QUILO
+        return cls.NORMAL
+
+
 class Mao:
     """Uma mão completa: preparação, dez vazas e a pontuação."""
 
@@ -85,3 +105,14 @@ class Mao:
         else:
             self.vez = (assento + 1) % 4
         return None
+
+    @property
+    def pontos(self) -> tuple[int, int]:
+        totais = [0, 0]
+        for vaza in self.vazas:
+            totais[vaza.vencedor % 2] += sum(carta.pontos for _, carta in vaza.jogadas)
+        return (totais[0], totais[1])
+
+    @property
+    def resultado(self) -> Resultado:
+        return Resultado.de_pontos(*self.pontos)
