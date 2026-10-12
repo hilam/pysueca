@@ -344,8 +344,11 @@ def test_fora_da_vez_o_servidor_decide() -> None:
         await pilot.press("enter")
         assert await falso.proxima() == Jogar(Carta.de_texto("7H"))
         await falso.enviar(Erro("fora_de_hora"))
-        await aguardar(pilot, lambda: "fora_de_hora" in painel(app, "#aviso"))
-        assert "fora_de_hora" in painel(app, "#aviso")
+        await aguardar(
+            pilot, lambda: "não esperava essa jogada" in painel(app, "#aviso")
+        )
+        assert "A mesa não esperava essa jogada agora" in painel(app, "#aviso")
+        assert "fora_de_hora" not in painel(app, "#aviso")
 
     rodar("Ana", cenario)
 
@@ -502,10 +505,12 @@ def test_erro_do_servidor_aparece_sem_derrubar_o_app() -> None:
         await falso.enviar(Estado(assentos=["Ana", None, None, None], mao=[]))
         await aguardar(pilot, lambda: "1 de 4" in painel(app, "#assentos"))
         await falso.enviar(Erro("nome_em_uso"))
-        await aguardar(pilot, lambda: "nome_em_uso" in painel(app, "#aviso"))
+        await aguardar(pilot, lambda: "já está em uso" in painel(app, "#aviso"))
+        assert "Esse nome já está em uso nesta mesa" in painel(app, "#aviso")
+        assert "nome_em_uso" not in painel(app, "#aviso")
         await falso.enviar(Estado(assentos=["Ana", "Bia", None, None], mao=[]))
         await aguardar(pilot, lambda: "2 de 4" in painel(app, "#assentos"))
-        assert "nome_em_uso" not in painel(app, "#aviso")
+        assert "já está em uso" not in painel(app, "#aviso")
 
     rodar("Ana", cenario)
 
