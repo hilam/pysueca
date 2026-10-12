@@ -55,3 +55,16 @@ def test_carta_do_trunfo_fica_com_o_dador() -> None:
 
     assert mao.carta_trunfo in mao.maos[3]
     assert mao.trunfo is mao.carta_trunfo.naipe
+
+
+def test_cima_ou_baixo_escolhe_a_ponta_do_baralho() -> None:
+    referencia = Baralho(random.Random(42))
+    referencia.embaralhar()
+
+    cima = Mao(0, random.Random(42))
+    cima.preparar(cima=True)
+    baixo = Mao(0, random.Random(42))
+    baixo.preparar(cima=False)
+
+    assert cima.carta_trunfo == referencia.cartas[0]
+    assert baixo.carta_trunfo == referencia.cartas[-1]
