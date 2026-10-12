@@ -14,6 +14,7 @@ from pysueca.protocolo import (
     Mensagem,
     Responder,
     desserializar,
+    erro_de_jogada,
     estado,
     serializar,
 )
@@ -51,17 +52,23 @@ class Servidor:
                         continue
                     assento = self._sentar(mensagem.nome, escritor)
                     await self._transmitir()
-                elif isinstance(mensagem, (Jogar, Responder)):
+                elif isinstance(mensagem, Jogar):
                     if assento is None:
                         await self._enviar(escritor, Erro("nao_sentado"))
-                    elif isinstance(mensagem, Responder):
-                        if None in self.nomes:
-                            await self._enviar(escritor, Erro("mesa_incompleta"))
-                        elif self._respondente() != assento:
-                            await self._enviar(escritor, Erro("fora_de_hora"))
-                        else:
-                            self.jogo.preparar(mensagem.cima)
-                            await self._transmitir()
+                    else:
+                        erro = self.jogo.jogar(assento, mensagem.carta)
+                        if erro is not None:
+                            await self._enviar(escritor, erro_de_jogada(erro))
+                elif isinstance(mensagem, Responder):
+                    if assento is None:
+                        await self._enviar(escritor, Erro("nao_sentado"))
+                    elif None in self.nomes:
+                        await self._enviar(escritor, Erro("mesa_incompleta"))
+                    elif self._respondente() != assento:
+                        await self._enviar(escritor, Erro("fora_de_hora"))
+                    else:
+                        self.jogo.preparar(mensagem.cima)
+                        await self._transmitir()
                 elif isinstance(mensagem, (Estado, Erro)):
                     await self._enviar(escritor, Erro("mensagem_invalida"))
         finally:
