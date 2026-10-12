@@ -21,3 +21,11 @@ def test_cada_naipe_tem_os_10_valores() -> None:
     for naipe in Naipe:
         valores = {carta.valor for carta in baralho.cartas if carta.naipe is naipe}
         assert valores == set(Valor)
+
+
+def test_pontos_dos_valores_com_ponto() -> None:
+    assert Carta(Naipe.PAUS, Valor.AS).pontos == 11
+    assert Carta(Naipe.PAUS, Valor.SETE).pontos == 10
+    assert Carta(Naipe.PAUS, Valor.REI).pontos == 4
+    assert Carta(Naipe.PAUS, Valor.VALETE).pontos == 3
+    assert Carta(Naipe.PAUS, Valor.DAMA).pontos == 2
