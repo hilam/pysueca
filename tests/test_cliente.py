@@ -93,8 +93,33 @@ def painel(app: SuecaApp, seletor: str) -> str:
     return app.query_one(seletor, Static).render().plain
 
 
+async def aguardar(pilot: Any, condicao: Callable[[], bool]) -> None:
+    """Processa eventos até a condição valer, sem depender do relógio."""
+    for _ in range(200):
+        await pilot.pause()
+        if condicao():
+            return
+    raise AssertionError("a tela não chegou ao estado esperado")
+
+
 def test_o_cliente_manda_entrar_com_o_nome() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
+
+    rodar("Ana", cenario)
+
+
+def test_tela_de_espera_mostra_n_de_4_assentos() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(Estado(assentos=["Ana", "Bia", None, None], mao=[]))
+        await aguardar(pilot, lambda: "2 de 4" in painel(app, "#assentos"))
+        texto = painel(app, "#assentos")
+        assert "Ana" in texto
+        assert "Bia" in texto
+        assert "vago" in texto
+        await pilot.press("enter")
+        with pytest.raises(TimeoutError):
+            await asyncio.wait_for(falso.recebidas.get(), 0.1)
 
     rodar("Ana", cenario)
