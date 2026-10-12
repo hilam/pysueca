@@ -57,6 +57,23 @@ async def fechar(*conexoes: tuple[asyncio.StreamReader, asyncio.StreamWriter]) -
         await escritor.wait_closed()
 
 
+async def drenar(leitor: asyncio.StreamReader) -> Estado:
+    """O último snapshot da conexão, descartando os broadcasts anteriores."""
+    ultimo: Estado | None = None
+    while True:
+        try:
+            linha = await asyncio.wait_for(leitor.readline(), 0.05)
+        except TimeoutError:
+            break
+        if not linha:
+            break
+        mensagem = desserializar(linha)
+        if isinstance(mensagem, Estado):
+            ultimo = mensagem
+    assert ultimo is not None
+    return ultimo
+
+
 async def sentar_quatro(porta: int) -> list[tuple[asyncio.StreamReader, asyncio.StreamWriter]]:
     """Quatro conexões sentadas nos quatro assentos, cada uma já com o snapshot."""
     conexoes = [await sentar(porta, nome) for nome in ("Ana", "Bia", "Caio", "Duda")]
@@ -142,5 +159,22 @@ def test_mensagem_de_direcao_errada_e_recusada() -> None:
             assert await receber(leitor) == Erro("mensagem_invalida")
             assert servidor.nomes == ["Ana", None, None, None]
             await fechar((leitor, escritor))
+
+    asyncio.run(cenario())
+
+
+def test_quatro_assentos_abrem_a_pergunta_cima_ou_baixo() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            primeiros = [await sentar(porta, nome) for nome in ("Ana", "Bia", "Caio")]
+            quarto = await sentar(porta, "Duda")
+            snapshots = [await drenar(leitor) for leitor, _ in (quarto, *primeiros)]
+
+            for snapshot in snapshots:
+                assert isinstance(snapshot, Estado)
+                assert snapshot.assentos == ["Ana", "Bia", "Caio", "Duda"]
+                assert snapshot.respondente == 1
+                assert snapshot.trunfo is None
+            await fechar(quarto, *primeiros)
 
     asyncio.run(cenario())
