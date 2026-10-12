@@ -80,7 +80,7 @@ def desenhar_mao(mao: list[str], selecao: int) -> str:
 
 
 def desenhar_mesa(estado: Estado) -> str:
-    """A carta do trunfo, a vaza corrente com o assento e o placar das duplas."""
+    """A carta do trunfo, a vaza corrente, o placar das duplas e o fim do jogo."""
     linhas = [
         f"Trunfo: {desenhar_carta(estado.carta_trunfo)}"
         if estado.carta_trunfo is not None
@@ -90,8 +90,19 @@ def desenhar_mesa(estado: Estado) -> str:
         nome = estado.assentos[assento] or f"assento {assento}"
         linhas.append(f"{nome}: {desenhar_carta(texto)}")
     partidas = estado.partidas if len(estado.partidas) >= 2 else [0, 0]
+    if estado.encerrado and estado.vencedor is not None:
+        linhas.append(f"Fim de jogo — venceu {nome_da_dupla(estado, estado.vencedor)}")
     linhas.append(f"Placar: {partidas[0]} x {partidas[1]}")
     return "\n".join(linhas)
+
+
+def nome_da_dupla(estado: Estado, dupla: int) -> str:
+    """Os dois nomes da dupla quando existem; senão os próprios assentos."""
+    assentos = (0, 2) if dupla == 0 else (1, 3)
+    nomes = [estado.assentos[assento] for assento in assentos]
+    if all(nomes):
+        return f"{nomes[0]} e {nomes[1]}"
+    return f"dupla {assentos[0]}–{assentos[1]}"
 
 
 def desenhar_assentos(estado: Estado) -> str:
