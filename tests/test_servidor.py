@@ -441,3 +441,37 @@ def test_mesa_congelada_recusa_jogadas() -> None:
             await fechar(*restantes)
 
     asyncio.run(cenario())
+
+
+def test_reconexao_com_o_mesmo_nome_retoma_o_assento() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            conexoes, snapshots = await mesa_pronta(porta)
+            caido = 0
+            conexoes[caido][1].close()
+            await conexoes[caido][1].wait_closed()
+
+            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            for leitor, _ in restantes:
+                assert (await receber_estado(leitor)).ausentes == [caido]
+
+            nova = await sentar(porta, "Ana")
+            conexoes2 = [*conexoes]
+            conexoes2[caido] = nova
+            atual = [await receber_estado(leitor) for leitor, _ in conexoes2]
+
+            assert atual[caido].ausentes == []
+            assert atual[caido].mao == snapshots[caido].mao
+            for assento, (leitor, _) in enumerate(conexoes2):
+                if assento != caido:
+                    assert atual[assento].ausentes == []
+
+            vez = atual[0].vez
+            assert vez is not None
+            carta = atual[vez].mao[0]
+            await enviar(conexoes2[vez][1], Jogar(Carta.de_texto(carta)))
+            for assento, (leitor, _) in enumerate(conexoes2):
+                assert (await receber_estado(leitor)).vaza == [(vez, carta)]
+            await fechar(*conexoes2)
+
+    asyncio.run(cenario())
