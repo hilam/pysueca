@@ -94,5 +94,5 @@
 - [x] 9.3 Suite completa uma última vez: `uv run pytest`
 - [x] 9.4 Gate de cobertura: `uv run pytest --cov=pysueca --cov-fail-under=80`
 - [x] 9.5 Leitura manual do `README.md`: roteiro de quatro terminais e passo a passo de duas máquinas conferidos à mão
-- [ ] 9.6 Roteiro manual de 4 terminais conferido à mão: uma mão completa com a mesa em fim de jogo na tela
+- [x] 9.6 Roteiro manual de 4 terminais conferido à mão: uma mão completa com a mesa em fim de jogo na tela
 - [x] 9.7 Commit de ajustes finais: `style: aplica lint e formatação`
