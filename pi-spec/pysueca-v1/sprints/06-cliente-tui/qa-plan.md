@@ -33,6 +33,18 @@
 - **WHEN** o cliente tenta conectar dentro do `run_test`
 - **THEN** a tela mostra o aviso de conexão, o app segue de pé e nenhuma exceção escapa ao loop
 
+### Test: EDGE - o fim da conexão vira aviso
+**Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Conexão em worker de tela — EDGE
+- **GIVEN** o cliente `"Ana"` sentado e a tela de espera desenhada
+- **WHEN** o falso fecha a conexão
+- **THEN** a tela mostra o aviso de conexão encerrada e o app segue de pé, sem exceção no loop
+
+### Test: EDGE - o teto do leitor vira aviso
+**Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Conexão em worker de tela — EDGE
+- **GIVEN** o cliente `"Ana"` conectado
+- **WHEN** o falso manda uma linha maior que o `LIMITE_LEITURA` do cliente
+- **THEN** a tela mostra o aviso de conexão encerrada e o app segue de pé — o `except (ValueError, LinhaLonga)` converge no mesmo `finally` (decisão 10)
+
 ### Test: tela de espera mostra N de 4 assentos
 **Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Espera pela mesa completa — CRITICAL
 - **GIVEN** o cliente `"Ana"` conectado
@@ -45,6 +57,12 @@
 - **WHEN** a tela desenha o snapshot
 - **THEN** ao lado de cada nome aparece a contagem daquele assento, e a contagem sai de `contagens`, não de um número fixo
 
+### Test: os assentos contam os nomes com um assento vago no meio
+**Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Espera pela mesa completa — EDGE
+- **GIVEN** `assentos == ["Ana", None, "Caio", "Duda"]`, pelo helper puro `desenhar_assentos`
+- **WHEN** o snapshot é desenhado
+- **THEN** a contagem mostra `3 de 4` e o assento 1 aparece como vago
+
 ### Test: a mão desenha as cartas com o naipe colorido
 **Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Mão de cartas em texto — CRITICAL
 - **GIVEN** as cartas `"7H"` (copas), `"7C"` (paus), `"AD"` (ouros) e `"AS"` (espadas)
@@ -56,6 +74,12 @@
 - **GIVEN** o snapshot com `carta_trunfo == "AH"`, `vaza == [(0, "7H"), (1, "AC")]` e `partidas == [1, 2]`
 - **WHEN** a tela desenha o snapshot
 - **THEN** o painel da mesa mostra a carta do trunfo (`A♥`, de `carta_trunfo`), as duas cartas jogadas junto do assento de quem jogou e o placar das duas duplas
+
+### Test: a mesa desenha a vaza vazia e a vaza cheia
+**Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Mão de cartas em texto — EDGE
+- **GIVEN** um snapshot sem vaza e outro com quatro jogadas, pelo helper puro `desenhar_mesa`
+- **WHEN** cada um é desenhado
+- **THEN** o primeiro mostra só o trunfo e o placar, e o segundo mostra as quatro cartas com o assento de quem jogou
 
 ### Test: ←/→ movem a seleção e Enter joga a carta
 **Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Jogada pela seleção — CRITICAL
@@ -86,6 +110,8 @@
 - **GIVEN** o snapshot da espera, com `mao == []`
 - **WHEN** o teste aperta `Enter`
 - **THEN** o falso não recebe `jogar` nenhum (só o `entrar` inicial)
+- **WHEN** o teste aperta `←` e `→`
+- **THEN** a seleção continua em 0, sem `IndexError` nem `jogar` no fio
 
 ### Test: cima ou baixo abre na tela do respondente
 **Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Pergunta cima ou baixo — CRITICAL
@@ -98,6 +124,8 @@
 - **GIVEN** o diálogo aberto
 - **WHEN** o teste aperta `c`
 - **THEN** o falso recebe `responder` com `cima` verdadeiro e o diálogo fecha
+- **WHEN** um novo snapshot reabre o diálogo e o teste aperta `b`
+- **THEN** o falso recebe `responder` com `cima` falso e o diálogo fecha
 
 ### Test: EDGE - quem não é o respondente não vê o diálogo
 **Traces**: `sprints/06-cliente-tui/specs/cliente/spec.md` → Requirement: Pergunta cima ou baixo — EDGE
@@ -186,3 +214,4 @@
 - **Cobertura dos caminhos novos:** o gate `uv run pytest --cov=pysueca --cov-fail-under=80` (lição da 04) depende de `test_cliente.py` cobrir o `main.py` reescrito e o `main()` novo do `servidor.py`; o `App.run_test` cria widgets e workers, então o worker sem servidor precisa do seu próprio teste para não virar linha descoberta.
 - **Asserção é sobre a tela, não sobre o tipo:** os testes leem o texto renderizado dos painéis (`Static.render().plain`), nunca `Estado`; se um widget importar `protocolo`, o teste não muda — a fronteira fica na revisão e no `AGENTS.md`.
 - **Determinismo:** nenhum `sleep`; o falso notifica cada mensagem numa fila lida com `asyncio.wait_for`, e a tela é lida depois de `pilot.pause()` (decisão 9, lição da 05).
+- **Retrabalho da verificação (2026-10-12):** o `b` do cima ou baixo, o fim de conexão (EOF e teto do leitor), a vaza vazia/cheia, o `None` no meio e a seleção com a mão vazia ganham teste; a implementação da 06 já cobria todos, então as tasks 11.x são cobertura declarada, não RED independente.
