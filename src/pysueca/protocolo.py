@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
+from pysueca.carta import Carta
+
 
 @dataclass(frozen=True)
 class Entrar:
@@ -13,12 +15,25 @@ class Entrar:
     nome: str
 
 
-def serializar(mensagem: Entrar) -> bytes:
+@dataclass(frozen=True)
+class Jogar:
+    """Intenção do cliente: jogar uma carta da própria mão."""
+
+    carta: Carta
+
+
+def serializar(mensagem: Entrar | Jogar) -> bytes:
     """A linha JSON da mensagem, terminada em `\\n`."""
-    return (json.dumps({"tipo": "entrar", "nome": mensagem.nome}) + "\n").encode()
+    if isinstance(mensagem, Entrar):
+        dados = {"tipo": "entrar", "nome": mensagem.nome}
+    else:
+        dados = {"tipo": "jogar", "carta": mensagem.carta.texto()}
+    return (json.dumps(dados) + "\n").encode()
 
 
-def desserializar(linha: bytes) -> Entrar:
+def desserializar(linha: bytes) -> Entrar | Jogar:
     """A mensagem da linha lida do fio."""
     dados = json.loads(linha.decode())
+    if dados["tipo"] == "jogar":
+        return Jogar(Carta.de_texto(dados["carta"]))
     return Entrar(dados["nome"])
