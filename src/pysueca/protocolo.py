@@ -60,6 +60,9 @@ class Estado:
     vencedor: int | None = None
 
 
+type Mensagem = Entrar | Jogar | Responder | Estado | Erro
+
+
 def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
     """O snapshot da mesa para um assento: a própria mão, as outras só como contagem."""
     mao = jogo.mao
@@ -85,12 +88,12 @@ def erro_de_jogada(erro: ErroJogada) -> Erro:
     return Erro(erro.value)
 
 
-def serializar(mensagem: Entrar | Jogar | Responder | Estado | Erro) -> bytes:
+def serializar(mensagem: Mensagem) -> bytes:
     """A linha JSON da mensagem, terminada em `\\n`."""
     return (json.dumps(_para_dados(mensagem)) + "\n").encode()
 
 
-def _para_dados(mensagem: Entrar | Jogar | Responder | Estado | Erro) -> dict:
+def _para_dados(mensagem: Mensagem) -> dict:
     """Os campos JSON da mensagem."""
     if isinstance(mensagem, Entrar):
         return {"tipo": "entrar", "nome": mensagem.nome}
@@ -150,7 +153,7 @@ def _validar(tipo: str, dados: dict) -> str | None:
     return None
 
 
-def desserializar(linha: bytes) -> Entrar | Jogar | Responder | Erro:
+def desserializar(linha: bytes) -> Mensagem:
     """A mensagem da linha lida do fio, ou o `Erro` recuperável."""
     if len(linha) > TETO_LINHA:
         raise LinhaLonga(len(linha))
