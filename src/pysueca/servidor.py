@@ -42,6 +42,9 @@ class Servidor:
                     if self._em_uso(mensagem.nome):
                         await self._enviar(escritor, Erro("nome_em_uso"))
                         continue
+                    if None not in self.nomes:
+                        await self._enviar(escritor, Erro("mesa_cheia"))
+                        continue
                     assento = self._sentar(mensagem.nome, escritor)
                     await self._enviar(escritor, estado(self.jogo, self.nomes, assento))
         finally:
