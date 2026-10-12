@@ -16,6 +16,7 @@ from pysueca.main import (
     RespostaScreen,
     SuecaApp,
     analisar,
+    desenhar_assentos,
     desenhar_carta,
     desenhar_mesa,
 )
@@ -242,6 +243,19 @@ def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
         assert "Duda: 10" in assentos
 
     rodar("Ana", cenario)
+
+
+def test_os_assentos_contam_os_nomes_com_um_assento_vago_no_meio() -> None:
+    texto = desenhar_assentos(
+        Estado(assentos=["Ana", None, "Caio", "Duda"], mao=[], contagens=[10, 0, 9, 10])
+    )
+    assert texto.splitlines() == [
+        "3 de 4",
+        "Ana: 10",
+        "assento 1: vago",
+        "Caio: 9",
+        "Duda: 10",
+    ]
 
 
 def test_setas_movem_a_selecao_e_enter_joga_a_carta() -> None:
