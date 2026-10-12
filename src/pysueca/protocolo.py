@@ -65,6 +65,7 @@ def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
     return Estado(
         assentos=list(nomes),
         mao=[carta.texto() for carta in jogo.mao.maos[assento]],
+        contagens=[len(mao) for mao in jogo.mao.maos],
     )
 
 
