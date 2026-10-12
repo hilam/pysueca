@@ -178,3 +178,24 @@ def test_quatro_assentos_abrem_a_pergunta_cima_ou_baixo() -> None:
             await fechar(quarto, *primeiros)
 
     asyncio.run(cenario())
+
+
+def test_responder_prepara_a_mao_e_distribui_dez_cartas() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            conexoes = await sentar_quatro(porta)
+            respondente = (await drenar(conexoes[0][0])).respondente
+            assert respondente is not None
+
+            await enviar(conexoes[respondente][1], Responder(True))
+            snapshots = [await drenar(leitor) for leitor, _ in conexoes]
+
+            for snapshot in snapshots:
+                assert snapshot.assentos == ["Ana", "Bia", "Caio", "Duda"]
+                assert len(snapshot.mao) == 10
+                assert snapshot.contagens == [10, 10, 10, 10]
+                assert snapshot.trunfo is not None
+                assert snapshot.vez == 0
+            await fechar(*conexoes)
+
+    asyncio.run(cenario())
