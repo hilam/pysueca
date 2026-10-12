@@ -142,3 +142,21 @@
 | `ruff`/`mypy` de `docs/imagens/get_images.py` | baixa | resolvido nesta sprint (lint/format aplicados) |
 
 **Evidências:** `pi-spec/pysueca-v1/execucao/06-cliente-tui/relatorio-verificacao.md`
+
+---
+
+## Sprint 06-cliente-tui — Re-verificação (retrabalho) — 2026-10-12
+
+**Aprendizado:** o retrabalho fechou a lacuna média do `b` e os ramos de cobertura do cliente em seis ciclos, todos `test(...)` — nenhuma linha de `main.py` mudou, porque a implementação da 06 já cobria tudo e o valor estava em provar cada ramo. O RED foi demonstrado revertendo o comportamento observável (`action_baixo`, o `avisar` do `finally`, o `except ValueError, LinhaLonga`, o guard de `action_selecionar`) e restaurando, com diff líquido zero. O único RED genuíno de teste foi a mesa vazia/cheia: `desenhar_mesa` devolve **markup** (`[red]A♥[/red]`), não texto puro, e a asserção passou a comparar as linhas exatas. Cobertura de `main.py` subiu de 94% para 97% e o total de 97% para 98%.
+
+**O que muda nas próximas sprints:** teste de função pura de tela precisa saber se ela devolve markup ou texto — `desenhar_carta`/`desenhar_mesa`/`desenhar_assentos` produzem markup do Textual, e só o `Static.render().plain` da tela remove as tags. Para tasks de "cobertura declarada", o RED se demonstra revertendo o comportamento observável, não inventando implementação.
+
+**Retrabalho adiado:**
+
+| O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
+|---|---|---|
+| `meu_assento` ausente, `enviar` sem conexão e `main()` das fachadas | baixa | ramos defensivos/fachada; sem caminho de jogo quebrado |
+| Idempotência de dois `Estado` iguais e `encerrado`/placar final | baixa | fora do escopo da 06; tela final é da 07 |
+| `ConnectionResetError` em `Servidor._desconectar` (arrastado da 05) | baixa | só o fechamento abrupto do cliente dispara |
+
+**Evidências:** `pi-spec/pysueca-v1/execucao/06-cliente-tui/relatorio-verificacao.md`
