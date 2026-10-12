@@ -18,6 +18,7 @@ from pysueca.protocolo import (
     Estado,
     Jogar,
     Mensagem,
+    Responder,
     desserializar,
     serializar,
 )
@@ -301,5 +302,20 @@ def test_cima_ou_baixo_abre_na_tela_do_respondente() -> None:
         )
         await aguardar(pilot, lambda: isinstance(app.screen, RespostaScreen))
         assert isinstance(app.screen, RespostaScreen)
+
+    rodar("Ana", cenario)
+
+
+def test_cima_ou_baixo_responde() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(assentos=["Bia", "Ana", "Caio", "Duda"], mao=[], respondente=1)
+        )
+        await aguardar(pilot, lambda: isinstance(app.screen, RespostaScreen))
+        await pilot.press("c")
+        assert await falso.proxima() == Responder(True)
+        await aguardar(pilot, lambda: not isinstance(app.screen, RespostaScreen))
+        assert not isinstance(app.screen, RespostaScreen)
 
     rodar("Ana", cenario)
