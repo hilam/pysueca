@@ -2,7 +2,7 @@
 
 Sueca para quatro jogadores: um servidor headless dono das regras e clientes Textual que mandam intenções e desenham o estado recebido.
 
-Regras em `README.md`, vocabulário em `CONTEXT.md`, decisões em `docs/adr/`.
+Regras e roteiro de jogo em `README.md` (quatro terminais, duas máquinas e o que o v1 entrega), vocabulário em `CONTEXT.md`, decisões em `docs/adr/`.
 
 ## Comandos
 
@@ -19,7 +19,7 @@ Regras em `README.md`, vocabulário em `CONTEXT.md`, decisões em `docs/adr/`.
 - `src/pysueca/motor.py` — `Vaza`, `Mao`, `Jogo`, `Resultado` e `ErroJogada`: as regras puras e síncronas
 - `src/pysueca/protocolo.py` — as mensagens de fio, o codec JSON (`serializar`/`desserializar`), a validação estrita e o snapshot `estado` por assento
 - `src/pysueca/servidor.py` — a única casca `asyncio`: os quatro assentos (nome e conexão), as intenções validadas pelo motor, o broadcast do snapshot por assento, a queda que congela e reserva, a reconexão pelo nome e o teto de bytes do protocolo
-- `src/pysueca/main.py` — o cliente Textual: o worker `@work` que lê o fio e traduz em `mostrar_estado`/`avisar`, os painéis `#aviso`, `#assentos`, `#mesa` e `#mao`, as teclas de seleção/jogada e o `RespostaScreen` do cima ou baixo
+- `src/pysueca/main.py` — o cliente Textual: o worker `@work` que lê o fio e traduz em `mostrar_estado`/`avisar` (a tabela `MOTIVOS` vira frase de jogador na tela), os painéis `#aviso`, `#assentos`, `#mesa` (com o fim de jogo e a dupla vencedora) e `#mao`, as teclas de seleção/jogada, o tema `d` e o `RespostaScreen` do cima ou baixo
 - `docs/imagens/` — PNGs sem uso, material para um modo imagem futuro
 - `tests/` — testes do motor puro, do protocolo, do servidor e do cliente
 - `docs/adr/` — decisões arquiteturais (0001–0005)
