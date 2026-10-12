@@ -204,3 +204,14 @@ def test_estado_carrega_os_assentos_ausentes() -> None:
 
         assert json.loads(linha)["ausentes"] == ausentes
         assert desserializar(linha) == snap
+
+
+def test_ausentes_com_tipo_errado_vira_erro() -> None:
+    linha = (
+        b'{"tipo": "estado", "assentos": [], "mao": [], "contagens": [],'
+        b' "trunfo": null, "carta_trunfo": null, "vez": null, "respondente": null,'
+        b' "vaza": [], "partidas": [], "encerrado": false, "vencedor": null,'
+        b' "ausentes": "todos"}'
+    )
+
+    assert desserializar(linha) == Erro("campo_invalido")
