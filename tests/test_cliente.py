@@ -154,3 +154,22 @@ def test_a_mesa_mostra_trunfo_vaza_e_placar() -> None:
         assert "1 x 2" in mesa
 
     rodar("Ana", cenario)
+
+
+def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H"],
+                contagens=[10, 9, 10, 10],
+            )
+        )
+        await aguardar(pilot, lambda: "Bia: 9" in painel(app, "#assentos"))
+        assentos = painel(app, "#assentos")
+        assert "Ana: 10" in assentos
+        assert "Caio: 10" in assentos
+        assert "Duda: 10" in assentos
+
+    rodar("Ana", cenario)
