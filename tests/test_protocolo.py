@@ -11,6 +11,7 @@ from pysueca.protocolo import (
     TETO_LINHA,
     Entrar,
     Erro,
+    Estado,
     Jogar,
     LinhaLonga,
     Responder,
@@ -194,3 +195,12 @@ def test_nao_seguir_o_naipe_vira_erro() -> None:
 
     assert erro == ErroJogada.NAO_SEGUIU_NAIPE
     assert erro_de_jogada(erro) == Erro("nao_seguiu_naipe")
+
+
+def test_estado_carrega_os_assentos_ausentes() -> None:
+    for ausentes in ([2], []):
+        snap = Estado(assentos=["Ana", "Bia", "Caio", "Dora"], mao=[], ausentes=ausentes)
+        linha = serializar(snap)
+
+        assert json.loads(linha)["ausentes"] == ausentes
+        assert desserializar(linha) == snap
