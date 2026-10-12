@@ -19,7 +19,9 @@ from pysueca.main import (
     desenhar_assentos,
     desenhar_carta,
     desenhar_mesa,
+    frase_do_motivo,
 )
+from pysueca.motor import ErroJogada
 from pysueca.protocolo import (
     Entrar,
     Erro,
@@ -224,6 +226,31 @@ def test_a_mesa_desenha_a_vaza_vazia_e_a_vaza_cheia() -> None:
         "Duda: [red]7♦[/red]",
         "Placar: 1 x 2",
     ]
+
+
+def test_todo_codigo_de_motivo_do_v1_vira_frase_de_jogador() -> None:
+    motivos = [erro.value for erro in ErroJogada] + [
+        "mensagem_invalida",
+        "nome_em_uso",
+        "mesa_cheia",
+        "nao_sentado",
+        "mesa_congelada",
+        "mesa_incompleta",
+        "fora_de_hora",
+        "json_invalido",
+        "tipo_desconhecido",
+        "campo_extra",
+        "campo_faltando",
+        "campo_invalido",
+        "nome_invalido",
+    ]
+    generica = frase_do_motivo("motivo_inventado")
+    for motivo in motivos:
+        frase = frase_do_motivo(motivo)
+        assert frase
+        assert frase != motivo
+        assert "_" not in frase
+        assert frase != generica
 
 
 def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
