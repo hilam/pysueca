@@ -9,7 +9,9 @@ from pysueca.protocolo import (
     TETO_LINHA,
     Entrar,
     Erro,
+    Jogar,
     Mensagem,
+    Responder,
     desserializar,
     estado,
     serializar,
@@ -32,6 +34,7 @@ class Servidor:
         self, leitor: asyncio.StreamReader, escritor: asyncio.StreamWriter
     ) -> None:
         """O laço de uma conexão: uma intenção por linha."""
+        assento: int | None = None
         try:
             while True:
                 linha = await leitor.readline()
@@ -47,6 +50,9 @@ class Servidor:
                         continue
                     assento = self._sentar(mensagem.nome, escritor)
                     await self._enviar(escritor, estado(self.jogo, self.nomes, assento))
+                elif isinstance(mensagem, (Jogar, Responder)):
+                    if assento is None:
+                        await self._enviar(escritor, Erro("nao_sentado"))
         finally:
             escritor.close()
             await escritor.wait_closed()
