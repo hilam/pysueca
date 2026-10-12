@@ -103,3 +103,9 @@ def test_embaralhar_preserva_as_40_cartas() -> None:
 def test_valor_sem_ponto_vale_zero() -> None:
     for valor in (Valor.SEIS, Valor.CINCO, Valor.QUATRO, Valor.TRES, Valor.DOIS):
         assert Carta(Naipe.COPAS, valor).pontos == 0
+
+
+def test_forca_entre_cartas_de_0_ponto() -> None:
+    seis = Carta(Naipe.COPAS, Valor.SEIS)
+    dois = Carta(Naipe.COPAS, Valor.DOIS)
+    assert seis.forca > dois.forca
