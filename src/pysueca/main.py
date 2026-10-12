@@ -149,9 +149,9 @@ class SuecaApp(App[None]):
 
     BINDINGS: ClassVar[list[BindingType]] = [
         Binding("ctrl+q", "quit", "Sair", priority=True),
-        Binding("left", "selecionar(-1)", "Anterior", show=False),
-        Binding("right", "selecionar(1)", "Próxima", show=False),
-        Binding("enter", "jogar", "Jogar", show=False),
+        Binding("left", "selecionar(-1)", "Anterior"),
+        Binding("right", "selecionar(1)", "Próxima"),
+        Binding("enter", "jogar", "Jogar"),
     ]
 
     def __init__(self, host: str, porta: int, nome: str) -> None:
