@@ -105,3 +105,21 @@
 | Ancorar `Jogo.vencedor is None` enquanto o jogo corre (arrastado da sprint 03) | baixa | contrato documentado sem teste; protocolo (04) e TUI (06) trazem os seus |
 
 **Evidências:** `pi-spec/pysueca-v1/execucao/04-protocolo/relatorio-verificacao.md`
+
+---
+
+## Sprint 05-servidor — Servidor — 2026-10-12
+
+**Aprendizado:** o `servidor.py` fechou com 18 testes de cliente real e 100% de cobertura sem tocar o motor — a fronteira "o motor decide, o protocolo formata, a casca só conecta" sustentou tudo: `_jogar` chama `Jogo.jogar` e traduz o `ErroJogada`, nenhuma regra de vez/posse/naipe repetida. O RED de novo auditou o teste, não a implementação: `drenar` engolia broadcasts anteriores e "os quatro recebem a própria mão com nove cartas" só vale para quem jogou — as duas asserções erradas foram corrigidas dentro do ciclo, antes de commitar o `feat`. O `asyncio` cobrou dois pedágios: `Server.wait_closed()` espera handlers e transportes, então fechar o `escritor` no `finally` e não esperar `wait_closed` no teardown destravou a suite; e o `ValueError` do `readline` acima do teto escapava da task (registrado no loop), resolvido com o mesmo `break`/`finally` da queda. O desvio do motivo `fora_de_hora` (ausente na decisão 8) foi dobrado de volta no `design.md` e no `spec.md` durante a verificação, mantendo a cadeia PLANO → spec → qa-plan → tasks honesta.
+
+**O que muda nas próximas sprints:** teste de servidor precisa de leitura determinística — um `receber` por broadcast em vez de drenar até timeout; e todo caminho de leitura de socket (EOF, reset, teto) tem de terminar no mesmo `finally`, sem exceção escapando para o loop.
+
+**Retrabalho adiado:**
+
+| O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
+|---|---|---|
+| Motivo `fora_de_hora` — incorporado à decisão 8 do `design.md` e ao `spec.md` na verificação | baixa | resolvido; rastreabilidade fechada, sem retrabalho |
+| `ruff`/`mypy` pré-existentes em `main.py` e `docs/imagens/get_images.py` | baixa | pré-existentes desde a sprint 01; `main.py` é reescrita na 06 |
+| Ancorar `Jogo.vencedor is None` enquanto o jogo corre (arrastado da 03/04) | baixa | contrato documentado sem teste; protocolo e TUI trazem os seus |
+
+**Evidências:** `pi-spec/pysueca-v1/execucao/05-servidor/relatorio-verificacao.md`
