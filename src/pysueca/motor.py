@@ -2,11 +2,27 @@
 
 from __future__ import annotations
 
+import enum
 import random
 from dataclasses import dataclass, field
 
 from pysueca.baralho import Baralho
 from pysueca.carta import Carta, Naipe
+
+
+class ErroJogada(enum.Enum):
+    """Motivos de recusa de uma jogada; devolvidos em vez de exceção."""
+
+    FORA_DA_VEZ = "fora_da_vez"
+    CARTA_FORA_DA_MAO = "carta_fora_da_mao"
+    NAO_SEGUIU_NAIPE = "nao_seguiu_naipe"
+
+
+def jogada_legal(mao: list[Carta], naipe_puxado: Naipe, carta: Carta) -> bool:
+    """A carta segue o naipe puxado quando a mão tem alguma; senão, qualquer uma."""
+    if carta.naipe is naipe_puxado:
+        return True
+    return all(outra.naipe is not naipe_puxado for outra in mao)
 
 
 @dataclass
@@ -50,10 +66,15 @@ class Mao:
         self.vez = self.embaralhador
         self.vaza = None
 
-    def jogar(self, assento: int, carta: Carta) -> None:
+    def jogar(self, assento: int, carta: Carta) -> ErroJogada | None:
+        if self.vaza is not None and not jogada_legal(
+            self.maos[assento], self.vaza.naipe_puxado, carta
+        ):
+            return ErroJogada.NAO_SEGUIU_NAIPE
         self.maos[assento].remove(carta)
         if self.vaza is None:
             self.vaza = Vaza(carta.naipe, self.trunfo, [(assento, carta)])
         else:
             self.vaza.jogadas.append((assento, carta))
         self.vez = (assento + 1) % 4
+        return None
