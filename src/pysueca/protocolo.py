@@ -62,10 +62,20 @@ class Estado:
 
 def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
     """O snapshot da mesa para um assento: a própria mão, as outras só como contagem."""
+    mao = jogo.mao
+    # a `Mao` só ganha `carta_trunfo` em `preparar()`; entre mãos, ela ainda não existe
+    carta_trunfo = getattr(mao, "carta_trunfo", None)
     return Estado(
         assentos=list(nomes),
-        mao=[carta.texto() for carta in jogo.mao.maos[assento]],
-        contagens=[len(mao) for mao in jogo.mao.maos],
+        mao=[carta.texto() for carta in mao.maos[assento]],
+        contagens=[len(outra) for outra in mao.maos],
+        trunfo=carta_trunfo.naipe.value if carta_trunfo is not None else None,
+        carta_trunfo=carta_trunfo.texto() if carta_trunfo is not None else None,
+        vez=mao.vez if carta_trunfo is not None else None,
+        vaza=[(a, c.texto()) for a, c in (mao.vaza.jogadas if mao.vaza else [])],
+        partidas=list(jogo.partidas),
+        encerrado=jogo.encerrado,
+        vencedor=jogo.vencedor,
     )
 
 
