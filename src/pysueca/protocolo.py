@@ -55,8 +55,11 @@ def desserializar(linha: bytes) -> Entrar | Jogar | Responder | Erro:
         return Erro("json_invalido")
     if not isinstance(dados, dict):
         return Erro("json_invalido")
-    if dados["tipo"] == "jogar":
+    tipo = dados.get("tipo")
+    if tipo == "entrar":
+        return Entrar(dados["nome"])
+    if tipo == "jogar":
         return Jogar(Carta.de_texto(dados["carta"]))
-    if dados["tipo"] == "responder":
+    if tipo == "responder":
         return Responder(dados["cima"])
-    return Entrar(dados["nome"])
+    return Erro("tipo_desconhecido")
