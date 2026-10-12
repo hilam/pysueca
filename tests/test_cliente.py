@@ -10,10 +10,12 @@ from typing import Any, AsyncIterator, Awaitable, Callable
 import pytest
 from textual.widgets import Static
 
+from pysueca.carta import Carta
 from pysueca.main import SuecaApp, desenhar_carta
 from pysueca.protocolo import (
     Entrar,
     Estado,
+    Jogar,
     Mensagem,
     desserializar,
     serializar,
@@ -91,6 +93,14 @@ def rodar(nome: str, cenario: Cenario) -> None:
 def painel(app: SuecaApp, seletor: str) -> str:
     """O texto renderizado do painel."""
     return app.query_one(seletor, Static).render().plain
+
+
+def indice_destacado(app: SuecaApp) -> int | None:
+    """O índice da carta com o realce `reverse`, lido dos spans da mão."""
+    for span in app.query_one("#mao", Static).render().spans:
+        if "reverse" in str(span.style):
+            return span.start // 3
+    return None
 
 
 async def aguardar(pilot: Any, condicao: Callable[[], bool]) -> None:
@@ -171,5 +181,26 @@ def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
         assert "Ana: 10" in assentos
         assert "Caio: 10" in assentos
         assert "Duda: 10" in assentos
+
+    rodar("Ana", cenario)
+
+
+def test_setas_movem_a_selecao_e_enter_joga_a_carta() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H", "AC", "QS"],
+                vez=0,
+            )
+        )
+        await aguardar(pilot, lambda: painel(app, "#mao") != "")
+        assert indice_destacado(app) == 0
+        await pilot.press("right")
+        await pilot.pause()
+        assert indice_destacado(app) == 1
+        await pilot.press("enter")
+        assert await falso.proxima() == Jogar(Carta.de_texto("AC"))
 
     rodar("Ana", cenario)
