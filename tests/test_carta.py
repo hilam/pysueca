@@ -34,3 +34,9 @@ def test_pontos_dos_valores_com_ponto() -> None:
 def test_soma_dos_pontos_do_baralho_e_120() -> None:
     baralho = Baralho()
     assert sum(carta.pontos for carta in baralho.cartas) == 120
+
+
+def test_as_mais_forte_que_sete() -> None:
+    as_de_copas = Carta(Naipe.COPAS, Valor.AS)
+    sete_de_copas = Carta(Naipe.COPAS, Valor.SETE)
+    assert as_de_copas.forca > sete_de_copas.forca
