@@ -61,6 +61,13 @@ class ServidorFalso:
         for escritor in self.escritores:
             await escritor.drain()
 
+    async def fechar(self) -> None:
+        """Fecha a conexão, simulando o servidor que cai."""
+        for escritor in self.escritores:
+            escritor.close()
+        for escritor in self.escritores:
+            await escritor.wait_closed()
+
 
 @asynccontextmanager
 async def servidor_falso() -> AsyncIterator[ServidorFalso]:
@@ -441,6 +448,18 @@ def test_sem_servidor_o_cliente_avisa_e_segue() -> None:
         assert "conexão" in painel(app, "#aviso")
 
     rodar_sem_servidor("Ana", cenario)
+
+
+def test_o_fim_da_conexao_vira_aviso() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(Estado(assentos=["Ana", None, None, None], mao=[]))
+        await aguardar(pilot, lambda: "1 de 4" in painel(app, "#assentos"))
+        await falso.fechar()
+        await aguardar(pilot, lambda: "Conexão encerrada" in painel(app, "#aviso"))
+        assert "Conexão encerrada" in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
 
 
 def test_o_cliente_se_reconhece_pelo_nome() -> None:
