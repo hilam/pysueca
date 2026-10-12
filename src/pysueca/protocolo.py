@@ -22,18 +22,29 @@ class Jogar:
     carta: Carta
 
 
-def serializar(mensagem: Entrar | Jogar) -> bytes:
+@dataclass(frozen=True)
+class Responder:
+    """Intenção do cliente: se a carta do trunfo é a de cima ou a de baixo."""
+
+    cima: bool
+
+
+def serializar(mensagem: Entrar | Jogar | Responder) -> bytes:
     """A linha JSON da mensagem, terminada em `\\n`."""
     if isinstance(mensagem, Entrar):
         dados = {"tipo": "entrar", "nome": mensagem.nome}
-    else:
+    elif isinstance(mensagem, Jogar):
         dados = {"tipo": "jogar", "carta": mensagem.carta.texto()}
+    else:
+        dados = {"tipo": "responder", "cima": mensagem.cima}
     return (json.dumps(dados) + "\n").encode()
 
 
-def desserializar(linha: bytes) -> Entrar | Jogar:
+def desserializar(linha: bytes) -> Entrar | Jogar | Responder:
     """A mensagem da linha lida do fio."""
     dados = json.loads(linha.decode())
     if dados["tipo"] == "jogar":
         return Jogar(Carta.de_texto(dados["carta"]))
+    if dados["tipo"] == "responder":
+        return Responder(dados["cima"])
     return Entrar(dados["nome"])
