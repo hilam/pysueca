@@ -283,6 +283,14 @@ def test_o_fim_do_jogo_aparece_na_mesa() -> None:
     assert "4 x 2" in mesa
 
 
+def test_o_jogo_em_andamento_segue_mostrando_o_placar_simples() -> None:
+    mesa = desenhar_mesa(
+        Estado(assentos=["Ana", "Bia", "Caio", "Duda"], mao=[], partidas=[1, 2])
+    )
+    assert "Placar: 1 x 2" in mesa
+    assert "Fim de jogo" not in mesa
+
+
 def test_a_mesa_encerrada_nao_anuncia_vez() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
