@@ -78,6 +78,17 @@ def test_empate_nao_da_partida_a_ninguem() -> None:
     assert jogo.encerrar_mao() is Resultado.EMPATE
     assert jogo.partidas == [0, 0]
     assert jogo.embaralhador == 1
+    assert jogo.encerrado is False
+
+
+def test_bandeira_encerra_o_jogo_na_hora() -> None:
+    jogo = Jogo(random.Random(1), embaralhador=0)
+    jogo.mao = _MaoDePlacar((120, 0))
+
+    jogo.encerrar_mao()
+    assert jogo.partidas == [4, 0]
+    assert jogo.encerrado is True
+    assert jogo.vencedor == 0
 
 
 def test_papeis_andam_um_assento_por_mao() -> None:
