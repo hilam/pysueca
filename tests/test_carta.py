@@ -118,6 +118,12 @@ def test_texto_invalido_rejeitado() -> None:
         Carta.de_texto("1H")
 
 
+def test_texto_de_tamanho_errado_rejeitado() -> None:
+    for texto in ("7HH", "7", ""):
+        with pytest.raises(ValueError):
+            Carta.de_texto(texto)
+
+
 def test_seeds_diferentes_embaralham_diferente() -> None:
     um = Baralho(random.Random(1))
     dois = Baralho(random.Random(2))
