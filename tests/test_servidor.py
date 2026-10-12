@@ -3,11 +3,14 @@
 import asyncio
 from contextlib import asynccontextmanager
 
+from pysueca.carta import Carta
 from pysueca.protocolo import (
     Entrar,
     Erro,
     Estado,
+    Jogar,
     Mensagem,
+    Responder,
     desserializar,
     serializar,
 )
@@ -106,5 +109,22 @@ def test_mesa_cheia_recusa_o_quinto() -> None:
             assert resposta == Erro("mesa_cheia")
             assert servidor.nomes == ["Ana", "Bia", "Caio", "Duda"]
             await fechar((leitor, escritor), *conexoes)
+
+    asyncio.run(cenario())
+
+
+def test_nao_sentado_e_recusado() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            leitor, escritor = await asyncio.open_connection("127.0.0.1", porta)
+            await enviar(escritor, Jogar(Carta.de_texto("7H")))
+            await enviar(escritor, Responder(True))
+
+            assert await receber(leitor) == Erro("nao_sentado")
+            assert await receber(leitor) == Erro("nao_sentado")
+
+            ana, ana_escritor = await sentar(porta, "Ana")
+            assert isinstance(await receber(ana), Estado)
+            await fechar((leitor, escritor), (ana, ana_escritor))
 
     asyncio.run(cenario())
