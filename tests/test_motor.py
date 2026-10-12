@@ -191,3 +191,13 @@ def test_jogada_fora_da_vez_devolve_erro() -> None:
     carta = mao.maos[2][0]
     assert mao.jogar(2, carta) is ErroJogada.FORA_DA_VEZ
     assert carta in mao.maos[2]
+
+
+def test_carta_fora_da_mao_devolve_erro() -> None:
+    mao = Mao(0, random.Random(1))
+    mao.preparar()
+    assert mao.vez == 0
+
+    carta_de_outro = mao.maos[1][0]
+    assert mao.jogar(0, carta_de_outro) is ErroJogada.CARTA_FORA_DA_MAO
+    assert carta_de_outro in mao.maos[1]
