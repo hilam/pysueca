@@ -319,3 +319,29 @@ def test_cima_ou_baixo_responde() -> None:
         assert not isinstance(app.screen, RespostaScreen)
 
     rodar("Ana", cenario)
+
+
+def test_quem_nao_e_o_respondente_nao_ve_o_dialogo() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(assentos=["Bia", "Ana", "Caio", "Duda"], mao=[], respondente=2)
+        )
+        await aguardar(pilot, lambda: painel(app, "#assentos") != "")
+        assert not isinstance(app.screen, RespostaScreen)
+        await falso.enviar(
+            Estado(assentos=["Bia", "Ana", "Caio", "Duda"], mao=[], respondente=1)
+        )
+        await aguardar(pilot, lambda: isinstance(app.screen, RespostaScreen))
+        await falso.enviar(
+            Estado(
+                assentos=["Bia", "Ana", "Caio", "Duda"],
+                mao=["7H"],
+                trunfo="H",
+                carta_trunfo="AH",
+            )
+        )
+        await aguardar(pilot, lambda: not isinstance(app.screen, RespostaScreen))
+        assert not isinstance(app.screen, RespostaScreen)
+
+    rodar("Ana", cenario)
