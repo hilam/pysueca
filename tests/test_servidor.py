@@ -269,3 +269,24 @@ def test_jogada_ilegal_vira_erro_so_para_quem_jogou() -> None:
             await fechar(*conexoes)
 
     asyncio.run(cenario())
+
+
+def test_jogada_legal_chega_aos_quatro() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            conexoes, snapshots = await mesa_pronta(porta)
+            vez = snapshots[0].vez
+            assert vez is not None
+            carta = snapshots[vez].mao[0]
+
+            await enviar(conexoes[vez][1], Jogar(Carta.de_texto(carta)))
+
+            for assento, (leitor, _) in enumerate(conexoes):
+                snapshot = await drenar(leitor)
+                assert snapshot.vaza == [(vez, carta)]
+                assert len(snapshot.mao) == (9 if assento == vez else 10)
+                assert snapshot.contagens == [10 if i != vez else 9 for i in range(4)]
+                assert snapshot.vez == (vez + 1) % 4
+            await fechar(*conexoes)
+
+    asyncio.run(cenario())
