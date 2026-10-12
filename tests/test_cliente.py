@@ -14,6 +14,7 @@ from pysueca.carta import Carta
 from pysueca.main import SuecaApp, desenhar_carta
 from pysueca.protocolo import (
     Entrar,
+    Erro,
     Estado,
     Jogar,
     Mensagem,
@@ -226,5 +227,25 @@ def test_a_selecao_nao_passa_dos_limites_da_mao() -> None:
         assert indice_destacado(app) == 2
         await pilot.press("enter")
         assert await falso.proxima() == Jogar(Carta.de_texto("QS"))
+
+    rodar("Ana", cenario)
+
+
+def test_fora_da_vez_o_servidor_decide() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H", "AC"],
+                vez=1,
+            )
+        )
+        await aguardar(pilot, lambda: painel(app, "#mao") != "")
+        await pilot.press("enter")
+        assert await falso.proxima() == Jogar(Carta.de_texto("7H"))
+        await falso.enviar(Erro("fora_de_hora"))
+        await aguardar(pilot, lambda: "fora_de_hora" in painel(app, "#aviso"))
+        assert "fora_de_hora" in painel(app, "#aviso")
 
     rodar("Ana", cenario)
