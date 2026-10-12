@@ -109,6 +109,9 @@ class SuecaApp(App[None]):
 
     BINDINGS = [
         Binding("ctrl+q", "quit", "Sair", priority=True),
+        Binding("left", "selecionar(-1)", "Anterior", show=False),
+        Binding("right", "selecionar(1)", "Próxima", show=False),
+        Binding("enter", "jogar", "Jogar", show=False),
     ]
 
     def __init__(self, host: str, porta: int, nome: str) -> None:
@@ -174,6 +177,19 @@ class SuecaApp(App[None]):
             self.mostrar_estado(mensagem)
         elif isinstance(mensagem, Erro):
             self.avisar(mensagem.motivo)
+
+    def action_selecionar(self, delta: int) -> None:
+        """Move a seleção dentro da mão, sem passar dos limites."""
+        if not self.estado or not self.estado.mao:
+            return
+        self.selecao = max(0, min(self.selecao + delta, len(self.estado.mao) - 1))
+        self.query_one("#mao", Static).update(desenhar_mao(self.estado.mao, self.selecao))
+
+    async def action_jogar(self) -> None:
+        """Manda a carta selecionada; quem decide se a jogada vale é o servidor."""
+        if not self.estado or not self.estado.mao:
+            return
+        await self.enviar(Jogar(Carta.de_texto(self.estado.mao[self.selecao])))
 
     def mostrar_estado(self, estado: Estado) -> None:
         """Guarda o snapshot: a tela é uma função dele."""
