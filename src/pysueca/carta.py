@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import enum
 from dataclasses import dataclass
+from typing import Self
 
 
 class Naipe(enum.Enum):
@@ -18,6 +19,9 @@ class Naipe(enum.Enum):
 class Valor(enum.Enum):
     """A face da carta e sua aritmética: pontos de contagem e força de vaza."""
 
+    _pontos: int
+    _forca: int
+
     AS = ("A", 11, 9)
     SETE = ("7", 10, 8)
     REI = ("K", 4, 7)
@@ -29,7 +33,7 @@ class Valor(enum.Enum):
     TRES = ("3", 0, 1)
     DOIS = ("2", 0, 0)
 
-    def __new__(cls, texto: str, pontos: int, forca: int) -> Valor:
+    def __new__(cls, texto: str, pontos: int, forca: int) -> Self:
         obj = object.__new__(cls)
         obj._value_ = texto
         obj._pontos = pontos
