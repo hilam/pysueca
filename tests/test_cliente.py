@@ -382,3 +382,17 @@ def test_reconexao_limpa_a_tela_de_queda() -> None:
         assert "congelada" not in painel(app, "#aviso")
 
     rodar("Ana", cenario)
+
+
+def test_erro_do_servidor_aparece_sem_derrubar_o_app() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(Estado(assentos=["Ana", None, None, None], mao=[]))
+        await aguardar(pilot, lambda: "1 de 4" in painel(app, "#assentos"))
+        await falso.enviar(Erro("nome_em_uso"))
+        await aguardar(pilot, lambda: "nome_em_uso" in painel(app, "#aviso"))
+        await falso.enviar(Estado(assentos=["Ana", "Bia", None, None], mao=[]))
+        await aguardar(pilot, lambda: "2 de 4" in painel(app, "#assentos"))
+        assert "nome_em_uso" not in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
