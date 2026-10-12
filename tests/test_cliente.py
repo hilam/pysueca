@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import asyncio
 import socket
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator, Awaitable, Callable
+from typing import Any
 
 import pytest
 from textual.widgets import Static
 
 from pysueca.carta import Carta
 from pysueca.main import RespostaScreen, SuecaApp, analisar, desenhar_carta
-from pysueca.servidor import analisar as analisar_servidor
 from pysueca.protocolo import (
     Entrar,
     Erro,
@@ -23,6 +23,7 @@ from pysueca.protocolo import (
     desserializar,
     serializar,
 )
+from pysueca.servidor import analisar as analisar_servidor
 
 TIMEOUT = 1.0
 
@@ -97,7 +98,9 @@ def rodar(nome: str, cenario: Cenario) -> None:
     asyncio.run(interno())
 
 
-def rodar_sem_servidor(nome: str, cenario: Callable[[SuecaApp, Any], Awaitable[None]]) -> None:
+def rodar_sem_servidor(
+    nome: str, cenario: Callable[[SuecaApp, Any], Awaitable[None]]
+) -> None:
     """Roda o cenário com a porta fechada: nenhum servidor escutando."""
 
     async def interno() -> None:
@@ -391,9 +394,7 @@ def test_reconexao_limpa_a_tela_de_queda() -> None:
             )
         )
         await aguardar(pilot, lambda: "congelada" in painel(app, "#aviso"))
-        await falso.enviar(
-            Estado(assentos=["Ana", "Bia", "Caio", "Duda"], mao=["7H"])
-        )
+        await falso.enviar(Estado(assentos=["Ana", "Bia", "Caio", "Duda"], mao=["7H"]))
         await aguardar(pilot, lambda: "congelada" not in painel(app, "#aviso"))
         assert "congelada" not in painel(app, "#aviso")
 
@@ -437,9 +438,7 @@ def test_sem_servidor_o_cliente_avisa_e_segue() -> None:
 def test_o_cliente_se_reconhece_pelo_nome() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
-        await falso.enviar(
-            Estado(assentos=["Bia", "Ana", None, None], mao=[], vez=1)
-        )
+        await falso.enviar(Estado(assentos=["Bia", "Ana", None, None], mao=[], vez=1))
         await aguardar(pilot, lambda: "Sua vez" in painel(app, "#aviso"))
         assert "Sua vez" in painel(app, "#aviso")
 

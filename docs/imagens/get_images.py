@@ -1,12 +1,17 @@
 import contextlib
 from html.parser import HTMLParser
 from urllib.error import HTTPError, URLError
-from urllib.request import urlopen, Request
+from urllib.request import Request, urlopen
 
 from rich.pretty import pprint
 
-naipes = ('club', 'heart', 'spade', 'diamond',)
-cartas = ('A', '7', 'K', 'J', 'Q', '6', '5', '4', '3', '2')
+naipes = (
+    "club",
+    "heart",
+    "spade",
+    "diamond",
+)
+cartas = ("A", "7", "K", "J", "Q", "6", "5", "4", "3", "2")
 
 
 def make_request(url, headers=None):
@@ -28,22 +33,21 @@ def make_request(url, headers=None):
 
 
 class URLImagesHTMLParser(HTMLParser):
-
     def __init__(self):
         super().__init__()
         self.images = []
         self.erro = 0
 
     def handle_starttag(self, tag, attrs):
-        if tag != 'img':
+        if tag != "img":
             return
         for attr in attrs:
-            if attr[0] == 'src':
+            if attr[0] == "src":
                 url = attr[1]
-                if 'upload' in url:
+                if "upload" in url:
                     with contextlib.suppress(IndexError):
-                        carta = url.split('_')[-1].split('.')[0]
-                        naipe = url.split('_')[-2]
+                        carta = url.split("_")[-1].split(".")[0]
+                        naipe = url.split("_")[-2]
                         # if naipe == 'heart' and self.erro == 1:
                         #     url = url.replace(naipe, 'diamond')
                         #     naipe = 'diamond'
@@ -57,7 +61,7 @@ class URLImagesHTMLParser(HTMLParser):
                         #     self.erro = 0
                         # elif naipe == 'heart' and self.erro == 0:
                         #     self.erro += 1
-                        self.images.append( (carta, naipe, f'https:{url}') )
+                        self.images.append((carta, naipe, f"https:{url}"))
 
     def get_images(self):
         return self.images
@@ -65,11 +69,11 @@ class URLImagesHTMLParser(HTMLParser):
 
 def main():
 
-    url_base = 'https://pt.wikibooks.org'
-    url_jogo = '/wiki/Jogos_de_cartas/Sueca'
+    url_base = "https://pt.wikibooks.org"
+    url_jogo = "/wiki/Jogos_de_cartas/Sueca"
 
-    body = make_request(f'{url_base}{url_jogo}')
-    html = body.decode('utf-8')
+    body = make_request(f"{url_base}{url_jogo}")
+    html = body.decode("utf-8")
 
     parser = URLImagesHTMLParser()
     parser.feed(html)
@@ -83,10 +87,10 @@ def main():
         pprint([naipe, carta, url])
         response = make_request(url)
 
-        with open(f'{naipe}_{carta}.png', 'wb') as imagem:
+        with open(f"{naipe}_{carta}.png", "wb") as imagem:
             if response:
                 imagem.write(response)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

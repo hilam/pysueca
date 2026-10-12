@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from typing import ClassVar
 
 from textual import work
 from textual.app import App, ComposeResult
-from textual.binding import Binding
+from textual.binding import Binding, BindingType
 from textual.containers import Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Footer, Header, Static
@@ -75,7 +76,9 @@ def desenhar_assentos(estado: Estado) -> str:
         if nome is None:
             linhas.append(f"assento {assento}: vago")
         else:
-            contagem = estado.contagens[assento] if assento < len(estado.contagens) else 0
+            contagem = (
+                estado.contagens[assento] if assento < len(estado.contagens) else 0
+            )
             linhas.append(f"{nome}: {contagem}")
     return "\n".join(linhas)
 
@@ -83,7 +86,7 @@ def desenhar_assentos(estado: Estado) -> str:
 class RespostaScreen(ModalScreen[None]):
     """O diálogo cima ou baixo, aberto só para o respondente da mão."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[BindingType]] = [
         Binding("c", "cima", "Cima"),
         Binding("b", "baixo", "Baixo"),
     ]
@@ -107,7 +110,7 @@ class RespostaScreen(ModalScreen[None]):
 class SuecaApp(App[None]):
     """A mesa do jogador: worker de fio, painéis e teclas."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[BindingType]] = [
         Binding("ctrl+q", "quit", "Sair", priority=True),
         Binding("left", "selecionar(-1)", "Anterior", show=False),
         Binding("right", "selecionar(1)", "Próxima", show=False),
@@ -159,7 +162,7 @@ class SuecaApp(App[None]):
             while True:
                 try:
                     linha = await leitor.readline()
-                except (ValueError, LinhaLonga):
+                except ValueError, LinhaLonga:
                     break
                 if not linha:
                     break
