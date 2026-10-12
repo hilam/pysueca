@@ -29,6 +29,13 @@ class Responder:
     cima: bool
 
 
+@dataclass(frozen=True)
+class Erro:
+    """Recusa recuperável do protocolo: a mesa segue, o cliente recebe o motivo."""
+
+    motivo: str
+
+
 def serializar(mensagem: Entrar | Jogar | Responder) -> bytes:
     """A linha JSON da mensagem, terminada em `\\n`."""
     if isinstance(mensagem, Entrar):
@@ -40,9 +47,14 @@ def serializar(mensagem: Entrar | Jogar | Responder) -> bytes:
     return (json.dumps(dados) + "\n").encode()
 
 
-def desserializar(linha: bytes) -> Entrar | Jogar | Responder:
-    """A mensagem da linha lida do fio."""
-    dados = json.loads(linha.decode())
+def desserializar(linha: bytes) -> Entrar | Jogar | Responder | Erro:
+    """A mensagem da linha lida do fio, ou o `Erro` recuperável."""
+    try:
+        dados = json.loads(linha.decode())
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return Erro("json_invalido")
+    if not isinstance(dados, dict):
+        return Erro("json_invalido")
     if dados["tipo"] == "jogar":
         return Jogar(Carta.de_texto(dados["carta"]))
     if dados["tipo"] == "responder":
