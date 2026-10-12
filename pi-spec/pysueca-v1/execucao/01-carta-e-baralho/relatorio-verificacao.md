@@ -2,7 +2,7 @@
 
 > **Sprint:** `pi-spec/pysueca-v1/sprints/01-carta-e-baralho/`
 > **PLANO:** `pi-spec/pysueca-v1/PLANO-PYSUECA-V1.md`
-> **Período:** 2026-10-12 — 2026-10-12
+> **Período:** 2026-10-12 — 2026-10-12 · **Re-verificação** após retrabalho (fase 7)
 
 ## Cobertura vs qa-plan.md
 
@@ -16,6 +16,7 @@
 | EDGE - Força entre cartas de 0 ponto | `specs/carta/spec.md` → Requirement: Força independente dos pontos (edge case) | passou | `test_forca_entre_cartas_de_0_ponto` |
 | "7H" ida e volta preserva naipe e valor | `specs/carta/spec.md` → Requirement: Texto ida-e-volta | passou | `test_texto_ida_e_volta_preserva_naipe_e_valor` |
 | EDGE - Texto inválido rejeitado | `specs/carta/spec.md` → Requirement: Texto ida-e-volta (edge case) | passou | `test_texto_invalido_rejeitado` |
+| EDGE - Texto de tamanho errado rejeitado | `specs/carta/spec.md` → Requirement: Texto ida-e-volta (edge case) | passou | `test_texto_de_tamanho_errado_rejeitado` (novo no retrabalho) |
 | Ás de trunfo vence qualquer carta | `specs/carta/spec.md` → Requirement: Desempate de duas cartas na vaza | passou | `test_as_de_trunfo_vence_qualquer_carta` (39 cartas × 4 naipes puxados) |
 | Entre trunfos vence a maior | `specs/carta/spec.md` → Requirement: Desempate de duas cartas na vaza | passou | `test_entre_trunfos_vence_a_maior` |
 | Naipe puxado vence o descarte de força maior | `specs/carta/spec.md` → Requirement: Desempate de duas cartas na vaza | passou | `test_naipe_puxado_vence_o_descarte_de_forca_maior` |
@@ -28,28 +29,25 @@
 | Embaralhar preserva as 40 cartas | `specs/baralho/spec.md` → Requirement: Embaralhamento preserva as cartas | passou | `test_embaralhar_preserva_as_40_cartas` |
 | EDGE - Embaralha sem o random global | `specs/baralho/spec.md` → Requirement: RNG injetado (edge case) | passou | `test_embaralha_sem_o_random_global` (monkeypatch de `random.shuffle`/`randrange`) |
 
-**19/19** `### Test:` do qa-plan cobertos por `tests/test_carta.py` (18 funções; "Soma dos pontos do baralho é 120" e "Pontos do baralho completo somam 120" compartilham o mesmo teste).
+**20/20** `### Test:` do qa-plan cobertos por `tests/test_carta.py` (19 funções; "Soma dos pontos do baralho é 120" e "Pontos do baralho completo somam 120" compartilham o mesmo teste).
 
 ## Evidências
 
 - **Comandos executados:**
   ```bash
   uv run pytest -v
-  uv run ruff check
-  uv run ruff format --check src/pysueca/carta.py src/pysueca/baralho.py tests/test_carta.py
+  uv run ruff check src/pysueca/carta.py src/pysueca/baralho.py tests/test_carta.py
   uv run mypy src
   uv run --with pytest-cov pytest --cov=pysueca --cov-report=term-missing
   uv run --with pytest-cov pytest --cov=pysueca.carta --cov=pysueca.baralho --cov-report=term-missing
   ```
-- **Saída relevante:** `18 passed in 0.10s`; `ruff check` limpo nos arquivos da sprint; `mypy src` → 1 erro pré-existente em `src/pysueca/main.py:52` (`App.dark`).
-- **Cobertura:** módulos da sprint **97%** (`baralho.py` 100%, `carta.py` 97% — faltam as linhas 75 `Carta.__str__` e 80 `ValueError` do guard de tamanho). Total do repo 78%, puxado por `main.py` 0% (pré-existente, substituído na sprint 06) e `__init__.py` 50%.
+- **Saída relevante:** `19 passed in 0.11s`; `ruff check` limpo nos arquivos da sprint; `mypy src` → 1 erro pré-existente em `src/pysueca/main.py:52` (`App.dark`).
+- **Cobertura:** módulos da sprint **100%** (`carta.py` e `baralho.py` sem linha descoberta). Total do repo 79%, puxado por `main.py` 0% (pré-existente, reescrito na sprint 06) e `__init__.py` 50%.
 
 ## Gaps / Tech debt
 
-- `Carta.__str__` (linha 75) sem teste — a TUI (sprint 06) é quem vai usá-lo; baixa prioridade.
-- Guard `if len(texto) != 2` (linha 80) sem teste — testar `Carta.de_texto("7")` fecharia o ramo; baixa prioridade.
 - `uv run mypy src` não fica limpo por `main.py:52` — pré-existente, endereçado na sprint 06 que reescreve `main.py`.
-- Ciclo TDD: 4 dos 12 cenários de `carta.py` (pontos, força, texto) entraram como cobertura porque o módulo nasceu completo; RED genuíno em 2.1, 2.4, 2.22 e 2.28. Registrado em `tasks.md` → Notas de Execução.
+- Ciclo TDD: 4 dos cenários de `carta.py` (pontos, força, texto) entraram como cobertura porque o módulo nasceu completo; RED genuíno em 2.1, 2.4, 2.22, 2.28. Registrado em `tasks.md` → Notas de Execução e em `LICOES.md`.
 
 ## Decisão
 
@@ -57,8 +55,7 @@
 
 | O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
 |---|---|---|
-| Teste do guard de tamanho de `de_texto` (linha 80) | baixa | ramo defensivo de 1 linha; próximo teste de `carta.py` cobre |
-| Teste de `Carta.__str__` (linha 75) | baixa | sem consumidor até a sprint 06; cobrir quando a TUI usar |
 | `mypy src` vermelho por `main.py:52` (pré-existente) | baixa | sprint 06 substitui `main.py`; não afeta o motor |
+| Cobrir `pontos`/`forca`/`texto()` com RED genuíno em vez de cobertura | baixa | processo, não código; já registrado em `LICOES.md` |
 
-> **Próximo passo:** Aprovado → `LICOES.md` e `state.sh finish 01-carta-e-baralho` + `advance sprints`.
+> **Próximo passo:** Aprovado → `state.sh finish 01-carta-e-baralho` + `advance sprints`.

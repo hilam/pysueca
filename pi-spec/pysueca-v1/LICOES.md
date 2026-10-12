@@ -22,3 +22,15 @@
 **Evidências:** `pi-spec/pysueca-v1/execucao/01-carta-e-baralho/relatorio-verificacao.md`
 
 ---
+
+## Sprint 01-carta-e-baralho — Re-verificação (retrabalho) — 2026-10-12
+
+**Aprendizado:** os dois gaps de cobertura da primeira verificação fecharam num ciclo curto, sem mudar comportamento: `Carta.__str__` saiu (YAGNI, sem consumidor) e o guard de tamanho de `de_texto` ganhou EDGE (`"7HH"`/`"7"`/`""` → `ValueError`). `carta.py` e `baralho.py` ficaram em 100% de cobertura.
+
+**O que muda nas próximas sprints:** retrabalho de verificação deve ficar restrito a teste/limpeza quando o motor já está correto; o ciclo `grill → atualizar → implementar → verificar` reabre sem atrito.
+
+**Retrabalho adiado:** nenhum desta sprint. Resta só `uv run mypy src` vermelho por `main.py:52` (pré-existente), endereçado na sprint 06 que reescreve `main.py`.
+
+**Evidências:** `pi-spec/pysueca-v1/execucao/01-carta-e-baralho/relatorio-verificacao.md`
+
+---
