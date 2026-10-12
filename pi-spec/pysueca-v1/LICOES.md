@@ -123,3 +123,22 @@
 | Ancorar `Jogo.vencedor is None` enquanto o jogo corre (arrastado da 03/04) | baixa | contrato documentado sem teste; protocolo e TUI trazem os seus |
 
 **Evidências:** `pi-spec/pysueca-v1/execucao/05-servidor/relatorio-verificacao.md`
+
+---
+
+## Sprint 06-cliente-tui — Cliente TUI — 2026-10-12
+
+**Aprendizado:** o cliente fechou com 25 testes e 94% de `main.py` sem tocar o motor, o protocolo nem a mesa — a fronteira "só o worker importa `protocolo`, nenhum widget conhece o fio" sustentou tudo: `_traduzir` é o único ponto de tradução e `mostrar_estado` é uma função do snapshot. O servidor falso roteirizado, falando o codec real (`serializar`/`desserializar`), provou o fio nos dois sentidos sem acoplar a TUI ao motor. Duas técnicas fizeram o teste da tela determinístico: `aguardar(pilot, condição)` num laço de `pilot.pause()` (sem `sleep`) para eventos de socket, e a leitura da tela por `Static.render().plain`/`spans`, nunca pelo tipo `Estado`. O RED genuíno só existiu quando o código foi de fato revertido (5.5, 5.8, 6.13 e o ImportError da 7.4); a maioria das tasks marcadas RED já estava coberta por implementação anterior (clamp de 4.2, `avisar` de 4.8, `meu_assento` de 5.2, `argparse` do tracer bullet) — repetição da lição das sprints 01–05.
+
+**O que muda nas próximas sprints:** no qa-plan, declarar "cobertura de ramo" em vez de RED quando a implementação vizinha já cobre; no código, implementar cada ramo só no seu ciclo (o `argparse` e a `RespostaScreen` nasceram no tracer bullet e viraram cobertura). Em teste de TUI: usar o laço de `pause` para eventos de socket e ler a tela renderizada.
+
+**Retrabalho adiado:**
+
+| O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
+|---|---|---|
+| Teste do `b` → `Responder(False)` (`main.py:101` descoberta) | média | requisito da spec sem prova; ramo simétrico ao `c` |
+| Guard da seleção com mão vazia, EOF/`finally`/aviso de fim de conexão, `meu_assento` ausente, `main()` das fachadas e casos-limite (vaza vazia/cheia, `None` no meio, `encerrado`) | baixa | ramos defensivos/fachada; sem caminho de jogo quebrado |
+| `ConnectionResetError` em `Servidor._desconectar` (arrastado da 05) | baixa | só o fechamento abrupto do cliente dispara; o worker fecha de forma limpa |
+| `ruff`/`mypy` de `docs/imagens/get_images.py` | baixa | resolvido nesta sprint (lint/format aplicados) |
+
+**Evidências:** `pi-spec/pysueca-v1/execucao/06-cliente-tui/relatorio-verificacao.md`
