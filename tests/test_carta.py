@@ -29,3 +29,8 @@ def test_pontos_dos_valores_com_ponto() -> None:
     assert Carta(Naipe.PAUS, Valor.REI).pontos == 4
     assert Carta(Naipe.PAUS, Valor.VALETE).pontos == 3
     assert Carta(Naipe.PAUS, Valor.DAMA).pontos == 2
+
+
+def test_soma_dos_pontos_do_baralho_e_120() -> None:
+    baralho = Baralho()
+    assert sum(carta.pontos for carta in baralho.cartas) == 120
