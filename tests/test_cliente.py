@@ -253,6 +253,20 @@ def test_todo_codigo_de_motivo_do_v1_vira_frase_de_jogador() -> None:
         assert frase != generica
 
 
+def test_motivo_desconhecido_nao_vaza_codigo_nem_derruba_a_tela() -> None:
+    frase = frase_do_motivo("bug_novo")
+    assert frase == "A mesa recusou o pedido"
+    assert "bug_novo" not in frase
+
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(Erro("bug_novo"))
+        await aguardar(pilot, lambda: "recusou o pedido" in painel(app, "#aviso"))
+        assert "bug_novo" not in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
+
+
 def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
