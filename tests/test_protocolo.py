@@ -2,8 +2,25 @@
 
 import json
 
+import pytest
+
 from pysueca.carta import Carta, Naipe, Valor
-from pysueca.protocolo import Entrar, Erro, Jogar, Responder, desserializar, serializar
+from pysueca.protocolo import (
+    TETO_LINHA,
+    Entrar,
+    Erro,
+    Jogar,
+    LinhaLonga,
+    Responder,
+    desserializar,
+    serializar,
+)
+
+
+def _linha_de_tamanho(tamanho: int) -> bytes:
+    """Um `entrar` válido de exatamente `tamanho` bytes, com espaço de enchimento."""
+    corpo = b'{"tipo": "entrar", "nome": "Ana"}'
+    return corpo + b" " * (tamanho - 1 - len(corpo)) + b"\n"
 
 
 def test_entrar_faz_ida_e_volta() -> None:
@@ -52,3 +69,8 @@ def test_campo_extra_vira_erro() -> None:
     assert desserializar(b'{"tipo": "jogar", "carta": "7H", "cor": "azul"}') == Erro(
         "campo_extra"
     )
+
+
+def test_linha_acima_do_teto_e_fatal() -> None:
+    with pytest.raises(LinhaLonga):
+        desserializar(_linha_de_tamanho(TETO_LINHA + 1))
