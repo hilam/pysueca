@@ -345,3 +345,20 @@ def test_quem_nao_e_o_respondente_nao_ve_o_dialogo() -> None:
         assert not isinstance(app.screen, RespostaScreen)
 
     rodar("Ana", cenario)
+
+
+def test_a_queda_aparece_na_tela() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H"],
+                ausentes=[2],
+            )
+        )
+        await aguardar(pilot, lambda: "congelada" in painel(app, "#aviso"))
+        assert "Caio" in painel(app, "#aviso")
+        assert "7♥" in painel(app, "#mao")
+
+    rodar("Ana", cenario)
