@@ -116,3 +116,11 @@ def test_texto_invalido_rejeitado() -> None:
         Carta.de_texto("7X")
     with pytest.raises(ValueError):
         Carta.de_texto("1H")
+
+
+def test_seeds_diferentes_embaralham_diferente() -> None:
+    um = Baralho(random.Random(1))
+    dois = Baralho(random.Random(2))
+    um.embaralhar()
+    dois.embaralhar()
+    assert um.cartas != dois.cartas
