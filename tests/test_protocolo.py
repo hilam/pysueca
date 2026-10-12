@@ -6,7 +6,7 @@ import random
 import pytest
 
 from pysueca.carta import Carta, Naipe, Valor
-from pysueca.motor import Jogo
+from pysueca.motor import ErroJogada, Jogo
 from pysueca.protocolo import (
     TETO_LINHA,
     Entrar,
@@ -15,6 +15,7 @@ from pysueca.protocolo import (
     LinhaLonga,
     Responder,
     desserializar,
+    erro_de_jogada,
     estado,
     serializar,
 )
@@ -147,3 +148,13 @@ def test_snapshot_diz_quem_deve_responder() -> None:
     jogo.preparar(cima=True)
     respondida = estado(jogo, ["Ana", "Bia", "Caio", "Dora"], assento=2)
     assert respondida.respondente is None
+
+
+def test_jogada_fora_da_vez_vira_erro() -> None:
+    jogo = Jogo(random.Random(7), embaralhador=0)
+    jogo.preparar(cima=True)
+
+    erro = jogo.jogar(1, jogo.mao.maos[1][0])
+
+    assert erro == ErroJogada.FORA_DA_VEZ
+    assert erro_de_jogada(erro) == Erro("fora_da_vez")
