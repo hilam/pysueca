@@ -362,3 +362,23 @@ def test_a_queda_aparece_na_tela() -> None:
         assert "7♥" in painel(app, "#mao")
 
     rodar("Ana", cenario)
+
+
+def test_reconexao_limpa_a_tela_de_queda() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H"],
+                ausentes=[2],
+            )
+        )
+        await aguardar(pilot, lambda: "congelada" in painel(app, "#aviso"))
+        await falso.enviar(
+            Estado(assentos=["Ana", "Bia", "Caio", "Duda"], mao=["7H"])
+        )
+        await aguardar(pilot, lambda: "congelada" not in painel(app, "#aviso"))
+        assert "congelada" not in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
