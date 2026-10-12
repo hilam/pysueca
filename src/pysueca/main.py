@@ -136,6 +136,13 @@ class SuecaApp(App[None]):
     def on_mount(self) -> None:
         self.ler_fio()
 
+    @property
+    def meu_assento(self) -> int | None:
+        """O próprio assento, derivado do nome no snapshot (o nome é único)."""
+        if self.estado is None or self.nome not in self.estado.assentos:
+            return None
+        return self.estado.assentos.index(self.nome)
+
     @work(exclusive=True)
     async def ler_fio(self) -> None:
         """Conecta, senta com o nome e lê o fio até o fim num só caminho."""
@@ -200,6 +207,22 @@ class SuecaApp(App[None]):
         self.query_one("#assentos", Static).update(desenhar_assentos(estado))
         self.query_one("#mesa", Static).update(desenhar_mesa(estado))
         self.query_one("#mao", Static).update(desenhar_mao(estado.mao, self.selecao))
+        self._sincronizar_pergunta()
+
+    def _sincronizar_pergunta(self) -> None:
+        """Abre o cima ou baixo só para o respondente e fecha quando a pergunta passa."""
+        estado = self.estado
+        deve_abrir = (
+            estado is not None
+            and estado.trunfo is None
+            and estado.respondente is not None
+            and estado.respondente == self.meu_assento
+        )
+        aberto = isinstance(self.screen, RespostaScreen)
+        if deve_abrir and not aberto:
+            self.push_screen(RespostaScreen())
+        elif not deve_abrir and aberto:
+            self.pop_screen()
 
     def avisar(self, motivo: str) -> None:
         """Guarda o aviso de erro até o próximo snapshot."""
