@@ -431,3 +431,15 @@ def test_sem_servidor_o_cliente_avisa_e_segue() -> None:
         assert "conexão" in painel(app, "#aviso")
 
     rodar_sem_servidor("Ana", cenario)
+
+
+def test_o_cliente_se_reconhece_pelo_nome() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(assentos=["Bia", "Ana", None, None], mao=[], vez=1)
+        )
+        await aguardar(pilot, lambda: "Sua vez" in painel(app, "#aviso"))
+        assert "Sua vez" in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
