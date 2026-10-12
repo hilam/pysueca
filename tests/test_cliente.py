@@ -130,3 +130,27 @@ def test_a_mao_desenha_as_cartas_com_o_naipe_colorido() -> None:
     assert desenhar_carta("AD") == "[red]A♦[/red]"
     assert desenhar_carta("7C") == "7♣"
     assert desenhar_carta("AS") == "A♠"
+
+
+def test_a_mesa_mostra_trunfo_vaza_e_placar() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H"],
+                carta_trunfo="AH",
+                vaza=[(0, "7H"), (1, "AC")],
+                partidas=[1, 2],
+            )
+        )
+        await aguardar(pilot, lambda: "A♥" in painel(app, "#mesa"))
+        mesa = painel(app, "#mesa")
+        assert "A♥" in mesa
+        assert "7♥" in mesa
+        assert "A♣" in mesa
+        assert "Ana" in mesa
+        assert "Bia" in mesa
+        assert "1 x 2" in mesa
+
+    rodar("Ana", cenario)
