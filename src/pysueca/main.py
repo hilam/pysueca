@@ -30,6 +30,15 @@ PORTA_PADRAO = 8765
 LIMITE_LEITURA = 65536
 
 
+def desenhar_assentos(estado: Estado) -> str:
+    """`N de 4`, os nomes sentados e os assentos vagos."""
+    ocupados = [nome for nome in estado.assentos if nome is not None]
+    linhas = [f"{len(ocupados)} de 4"]
+    for assento, nome in enumerate(estado.assentos):
+        linhas.append(nome if nome is not None else f"assento {assento}: vago")
+    return "\n".join(linhas)
+
+
 class RespostaScreen(ModalScreen[None]):
     """O diálogo cima ou baixo, aberto só para o respondente da mão."""
 
@@ -127,6 +136,8 @@ class SuecaApp(App[None]):
     def mostrar_estado(self, estado: Estado) -> None:
         """Guarda o snapshot: a tela é uma função dele."""
         self.estado = estado
+        self.aviso_erro = None
+        self.query_one("#assentos", Static).update(desenhar_assentos(estado))
 
     def avisar(self, motivo: str) -> None:
         """Guarda o aviso de erro até o próximo snapshot."""
