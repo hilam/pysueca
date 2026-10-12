@@ -193,6 +193,8 @@ class SuecaApp(App[None]):
 
     def mostrar_estado(self, estado: Estado) -> None:
         """Guarda o snapshot: a tela é uma função dele."""
+        if self.estado is None or self.estado.mao != estado.mao:
+            self.selecao = 0
         self.estado = estado
         self.aviso_erro = None
         self.query_one("#assentos", Static).update(desenhar_assentos(estado))
