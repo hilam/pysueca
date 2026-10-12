@@ -1,11 +1,13 @@
 {
   "iniciativa": "pysueca-v1",
-  "fase": "sprints",
+  "fase": "sprint-implementacao",
   "plano": {
     "status": "aprovado"
   },
   "atual": {
-    "sprint": ""
+    "sprint": "01-carta-e-baralho"
   },
-  "sprints": {}
+  "sprints": {
+    "01-carta-e-baralho": "proposta"
+  }
 }
