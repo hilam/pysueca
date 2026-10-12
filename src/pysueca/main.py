@@ -12,6 +12,7 @@ from textual.containers import Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Footer, Header, Static
 
+from pysueca.carta import Carta, Naipe
 from pysueca.protocolo import (
     Entrar,
     Erro,
@@ -28,6 +29,27 @@ HOST_PADRAO = "127.0.0.1"
 PORTA_PADRAO = 8765
 # o snapshot legítimo é < 1 KB; o teto aqui só evita o `ValueError` do readline
 LIMITE_LEITURA = 65536
+
+SIMBOLOS = {Naipe.PAUS: "♣", Naipe.COPAS: "♥", Naipe.ESPADAS: "♠", Naipe.OUROS: "♦"}
+VERMELHOS = frozenset({Naipe.COPAS, Naipe.OUROS})
+
+
+def desenhar_carta(texto: str, destaque: bool = False) -> str:
+    """A carta em markup do Textual, com copas e ouros em vermelho."""
+    carta = Carta.de_texto(texto)
+    markup = f"{carta.valor.value}{SIMBOLOS[carta.naipe]}"
+    if carta.naipe in VERMELHOS:
+        markup = f"[red]{markup}[/red]"
+    if destaque:
+        markup = f"[reverse]{markup}[/reverse]"
+    return markup
+
+
+def desenhar_mao(mao: list[str], selecao: int) -> str:
+    """A mão inteira em uma linha, com a carta selecionada destacada."""
+    return " ".join(
+        desenhar_carta(texto, indice == selecao) for indice, texto in enumerate(mao)
+    )
 
 
 def desenhar_assentos(estado: Estado) -> str:
@@ -77,6 +99,7 @@ class SuecaApp(App[None]):
         self.nome = nome
         self.estado: Estado | None = None
         self.aviso_erro: str | None = None
+        self.selecao = 0
         self.escritor: asyncio.StreamWriter | None = None
 
     def compose(self) -> ComposeResult:
@@ -138,6 +161,7 @@ class SuecaApp(App[None]):
         self.estado = estado
         self.aviso_erro = None
         self.query_one("#assentos", Static).update(desenhar_assentos(estado))
+        self.query_one("#mao", Static).update(desenhar_mao(estado.mao, self.selecao))
 
     def avisar(self, motivo: str) -> None:
         """Guarda o aviso de erro até o próximo snapshot."""
