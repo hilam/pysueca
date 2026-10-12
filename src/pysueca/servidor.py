@@ -80,6 +80,7 @@ class Servidor:
         finally:
             escritor.close()
             await escritor.wait_closed()
+            await self._desconectar(assento)
 
     def _sentar(self, nome: str, escritor: asyncio.StreamWriter) -> int:
         """Senta o nome no primeiro assento livre e devolve o assento."""
@@ -108,7 +109,7 @@ class Servidor:
     async def _transmitir(self) -> None:
         """Manda o snapshot de cada assento ocupado, montado antes do primeiro write."""
         linhas = [
-            (conexao, serializar(estado(self.jogo, self.nomes, assento)))
+            (conexao, serializar(estado(self.jogo, self.nomes, assento, self._ausentes())))
             for assento, conexao in enumerate(self.conexoes)
             if conexao is not None
         ]
@@ -116,3 +117,18 @@ class Servidor:
             conexao.write(linha)
         for conexao, _ in linhas:
             await conexao.drain()
+
+    def _ausentes(self) -> list[int]:
+        """Os assentos reservados cujo dono caiu (nome guardado, sem conexão)."""
+        return [
+            assento
+            for assento, nome in enumerate(self.nomes)
+            if nome is not None and self.conexoes[assento] is None
+        ]
+
+    async def _desconectar(self, assento: int | None) -> None:
+        """Reserva o assento do dono que caiu e avisa a mesa; conexão anônima é no-op."""
+        if assento is None:
+            return
+        self.conexoes[assento] = None
+        await self._transmitir()

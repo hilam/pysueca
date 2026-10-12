@@ -58,12 +58,15 @@ class Estado:
     partidas: list[int] = field(default_factory=list)
     encerrado: bool = False
     vencedor: int | None = None
+    ausentes: list[int] = field(default_factory=list)
 
 
 type Mensagem = Entrar | Jogar | Responder | Estado | Erro
 
 
-def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
+def estado(
+    jogo: Jogo, nomes: list[str | None], assento: int, ausentes: list[int] | None = None
+) -> Estado:
     """O snapshot da mesa para um assento: a própria mão, as outras só como contagem."""
     mao = jogo.mao
     # a `Mao` só ganha `carta_trunfo` em `preparar()`; entre mãos, ela ainda não existe
@@ -80,6 +83,7 @@ def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
         partidas=list(jogo.partidas),
         encerrado=jogo.encerrado,
         vencedor=jogo.vencedor,
+        ausentes=list(ausentes) if ausentes else [],
     )
 
 
@@ -115,6 +119,7 @@ def _para_dados(mensagem: Mensagem) -> dict:
             "partidas": mensagem.partidas,
             "encerrado": mensagem.encerrado,
             "vencedor": mensagem.vencedor,
+            "ausentes": mensagem.ausentes,
         }
     return {"tipo": "erro", "motivo": mensagem.motivo}
 
@@ -136,6 +141,7 @@ _CAMPOS: dict[str, dict[str, type | tuple[type, ...]]] = {
         "partidas": list,
         "encerrado": bool,
         "vencedor": (int, type(None)),
+        "ausentes": list,
     },
 }
 
@@ -191,5 +197,6 @@ def desserializar(linha: bytes) -> Mensagem:
             partidas=dados["partidas"],
             encerrado=dados["encerrado"],
             vencedor=dados["vencedor"],
+            ausentes=dados["ausentes"],
         )
     return Erro(dados["motivo"])
