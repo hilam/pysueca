@@ -332,6 +332,20 @@ def test_a_mesa_encerrada_nao_manda_jogar() -> None:
     rodar("Ana", cenario)
 
 
+def test_o_nome_ausente_cai_para_a_dupla() -> None:
+    mesa = desenhar_mesa(
+        Estado(
+            assentos=["Ana", "Bia", "Caio", None],
+            mao=[],
+            partidas=[2, 4],
+            encerrado=True,
+            vencedor=1,
+        )
+    )
+    assert "dupla 1–3" in mesa
+    assert "None" not in mesa
+
+
 def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
