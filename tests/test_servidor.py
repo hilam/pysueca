@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from pysueca.carta import Carta
 from pysueca.motor import Resultado, jogada_legal
 from pysueca.protocolo import (
+    TETO_LINHA,
     Entrar,
     Erro,
     Estado,
@@ -473,5 +474,30 @@ def test_reconexao_com_o_mesmo_nome_retoma_o_assento() -> None:
             for assento, (leitor, _) in enumerate(conexoes2):
                 assert (await receber_estado(leitor)).vaza == [(vez, carta)]
             await fechar(*conexoes2)
+
+    asyncio.run(cenario())
+
+
+def test_linha_acima_do_teto_fecha_aquela_conexao() -> None:
+    async def cenario() -> None:
+        loop = asyncio.get_running_loop()
+        escaparam: list[dict] = []
+        loop.set_exception_handler(lambda _, contexto: escaparam.append(contexto))
+        async with mesa() as (_, porta):
+            conexoes, _ = await mesa_pronta(porta)
+            caido = 1
+            conexoes[caido][1].write(b" " * (TETO_LINHA + 100))
+            await conexoes[caido][1].drain()
+            conexoes[caido][1].close()
+            await conexoes[caido][1].wait_closed()
+
+            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            for leitor, _ in restantes:
+                snapshot = await receber_estado(leitor)
+                assert snapshot.ausentes == [caido]
+                assert snapshot.assentos == ["Ana", "Bia", "Caio", "Duda"]
+            await asyncio.sleep(0.05)
+            assert escaparam == []
+            await fechar(*restantes)
 
     asyncio.run(cenario())
