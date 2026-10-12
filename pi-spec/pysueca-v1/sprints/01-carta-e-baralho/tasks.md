@@ -107,11 +107,11 @@ Task sem `### Test:` — documentação não é capability; a verificação é a
 
 ## 7. Retrabalho (verificação)
 
-- [ ] 7.1 Remover `Carta.__str__` de `src/pysueca/carta.py` (sem contrato em spec nem consumidor)
-- [ ] 7.2 Commit: `refactor(01-carta-e-baralho): remove Carta.__str__ sem consumidor`
-- [ ] 7.3 Teste do caso limite `EDGE - Texto de tamanho errado rejeitado` (RED; o guard já existe, então tende a verde — registrar como cobertura)
-- [ ] 7.4 Commit: `test(01-carta-e-baralho): cobre texto de tamanho errado`
-- [ ] 7.5 Suite completa e cobertura dos módulos da sprint: `uv run pytest` e `uv run --with pytest-cov pytest --cov=pysueca.carta --cov=pysueca.baralho`
+- [x] 7.1 Remover `Carta.__str__` de `src/pysueca/carta.py` (sem contrato em spec nem consumidor)
+- [x] 7.2 Commit: `refactor(01-carta-e-baralho): remove Carta.__str__ sem consumidor`
+- [x] 7.3 Teste do caso limite `EDGE - Texto de tamanho errado rejeitado` (RED; o guard já existe, então tende a verde — registrar como cobertura)
+- [x] 7.4 Commit: `test(01-carta-e-baralho): cobre texto de tamanho errado`
+- [x] 7.5 Suite completa e cobertura dos módulos da sprint: `uv run pytest` e `uv run --with pytest-cov pytest --cov=pysueca.carta --cov=pysueca.baralho`
 
 ## Notas de Execução
 
