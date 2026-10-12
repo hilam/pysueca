@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from pysueca.protocolo import (
     Entrar,
+    Erro,
     Estado,
     Mensagem,
     desserializar,
@@ -25,7 +26,6 @@ async def mesa():
         yield servidor, porta
     finally:
         tcp.close()
-        await tcp.wait_closed()
 
 
 async def enviar(escritor: asyncio.StreamWriter, mensagem: Mensagem) -> None:
@@ -47,6 +47,13 @@ async def sentar(porta: int, nome: str) -> tuple[asyncio.StreamReader, asyncio.S
     return leitor, escritor
 
 
+async def fechar(*conexoes: tuple[asyncio.StreamReader, asyncio.StreamWriter]) -> None:
+    """Fecha as conexões de cliente e espera o fio aceitar."""
+    for _, escritor in conexoes:
+        escritor.close()
+        await escritor.wait_closed()
+
+
 def test_entrar_senta_no_primeiro_assento_livre() -> None:
     async def cenario() -> None:
         async with mesa() as (_, porta):
@@ -58,7 +65,24 @@ def test_entrar_senta_no_primeiro_assento_livre() -> None:
             assert snapshot.assentos == ["Ana", None, None, None]
             assert snapshot.mao == []
             assert snapshot.contagens == [0, 0, 0, 0]
-            escritor.close()
-            await escritor.wait_closed()
+            await fechar((leitor, escritor))
+
+    asyncio.run(cenario())
+
+
+def test_nome_ja_sentado_e_ativo_e_recusado() -> None:
+    async def cenario() -> None:
+        async with mesa() as (servidor, porta):
+            conexoes = [await sentar(porta, nome) for nome in ("Ana", "Bia", "Caio", "Duda")]
+            for leitor, _ in conexoes:
+                await receber(leitor)
+
+            leitor, escritor = await asyncio.open_connection("127.0.0.1", porta)
+            await enviar(escritor, Entrar("Ana"))
+            resposta = await receber(leitor)
+
+            assert resposta == Erro("nome_em_uso")
+            assert servidor.nomes == ["Ana", "Bia", "Caio", "Duda"]
+            await fechar((leitor, escritor), *conexoes)
 
     asyncio.run(cenario())
