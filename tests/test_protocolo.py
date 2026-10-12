@@ -41,3 +41,8 @@ def test_campo_faltando_vira_erro() -> None:
 
 def test_nome_e_normalizado() -> None:
     assert desserializar(b'{"tipo": "entrar", "nome": "  Ana  "}') == Entrar("Ana")
+
+
+def test_nome_invalido_vira_erro() -> None:
+    for nome in ("   ", "x" * 21):
+        assert desserializar(serializar(Entrar(nome))) == Erro("nome_invalido")
