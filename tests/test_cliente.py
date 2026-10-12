@@ -50,8 +50,12 @@ class ServidorFalso:
 
     async def enviar(self, mensagem: Mensagem) -> None:
         """Manda a mensagem aos clientes conectados."""
+        await self.enviar_cru(serializar(mensagem))
+
+    async def enviar_cru(self, linha: bytes) -> None:
+        """Manda uma linha qualquer, para o caso de fio malformado."""
         for escritor in self.escritores:
-            escritor.write(serializar(mensagem))
+            escritor.write(linha)
         for escritor in self.escritores:
             await escritor.drain()
 
@@ -394,5 +398,17 @@ def test_erro_do_servidor_aparece_sem_derrubar_o_app() -> None:
         await falso.enviar(Estado(assentos=["Ana", "Bia", None, None], mao=[]))
         await aguardar(pilot, lambda: "2 de 4" in painel(app, "#assentos"))
         assert "nome_em_uso" not in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
+
+
+def test_mensagem_invalida_do_fio_nao_derruba_o_app() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar_cru(b"isto nao e json\n")
+        await aguardar(pilot, lambda: "json_invalido" in painel(app, "#aviso"))
+        await falso.enviar(Estado(assentos=["Ana", "Bia", None, None], mao=[]))
+        await aguardar(pilot, lambda: "2 de 4" in painel(app, "#assentos"))
+        assert "json_invalido" not in painel(app, "#aviso")
 
     rodar("Ana", cenario)
