@@ -18,6 +18,7 @@ Regras em `README.md`, vocabulário em `CONTEXT.md`, decisões em `docs/adr/`.
 - `src/pysueca/baralho.py` — as 40 cartas e `embaralhar()`, com `random.Random` injetado
 - `src/pysueca/motor.py` — `Vaza`, `Mao`, `Jogo`, `Resultado` e `ErroJogada`: as regras puras e síncronas
 - `src/pysueca/protocolo.py` — as mensagens de fio, o codec JSON (`serializar`/`desserializar`), a validação estrita e o snapshot `estado` por assento
+- `src/pysueca/servidor.py` — a única casca `asyncio`: os quatro assentos (nome e conexão), as intenções validadas pelo motor, o broadcast do snapshot por assento, a queda que congela e reserva, a reconexão pelo nome e o teto de bytes do protocolo
 - `src/pysueca/main.py` — esqueleto Textual (substituído na sprint 06)
 - `docs/imagens/` — PNGs sem uso, material para um modo imagem futuro
 - `tests/` — testes do motor puro
@@ -27,6 +28,7 @@ Regras em `README.md`, vocabulário em `CONTEXT.md`, decisões em `docs/adr/`.
 ## Invariantes
 
 - **Motor puro e síncrono**: `carta.py`, `baralho.py`, `motor.py` e `protocolo.py` não usam `asyncio`, rede nem Textual.
+- **Só o servidor toca a rede**: `servidor.py` é a única casca `asyncio` do projeto — é ele que sobe o socket, lê as intenções e transmite os snapshots.
 - **Só Textual**: nenhuma dependência de terceiros além do Textual; o resto é stdlib (`docs/adr/0004`).
 
 ## Convenções
