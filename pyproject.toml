@@ -9,7 +9,8 @@ dependencies = [
 ]
 
 [project.scripts]
-pysueca = "pysueca:src.pysueca.main"
+pysueca = "pysueca.main:main"
+pysueca-servidor = "pysueca.servidor:main"
 
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]

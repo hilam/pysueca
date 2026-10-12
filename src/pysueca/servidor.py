@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 
 from pysueca.carta import Carta
@@ -187,3 +188,24 @@ class Servidor:
             return
         self.conexoes[assento] = None
         await self._transmitir()
+
+
+def analisar(argv: list[str] | None = None) -> argparse.Namespace:
+    """O comando de linha do servidor: host e porta com defaults."""
+    parser = argparse.ArgumentParser(prog="pysueca-servidor")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--porta", type=int, default=8765)
+    return parser.parse_args(argv)
+
+
+async def _servir(host: str, porta: int) -> None:
+    """Sobe a mesa e a mantém de pé."""
+    tcp = await Servidor().iniciar(host, porta)
+    async with tcp:
+        await tcp.serve_forever()
+
+
+def main(argv: list[str] | None = None) -> None:
+    """Sobe o servidor autoritativo, dono da mesa."""
+    args = analisar(argv)
+    asyncio.run(_servir(args.host, args.porta))
