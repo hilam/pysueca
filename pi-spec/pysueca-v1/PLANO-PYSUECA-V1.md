@@ -28,7 +28,7 @@ Uma mesa de Sueca para quatro jogadores em terminais diferentes: um servidor hea
 
 **Entregável:** `tests/test_motor.py` verde, jogando uma mão inteira com 4 jogadores escolhendo cartas legais ao acaso e provando: naipe puxado é obrigatório, trunfo vence naipe, entre trunfos vence a maior, quem levou puxa a seguinte, e o resultado (bandeira/quilo/normal/empate) sai dos limites de `README.md`. Todos os testes verdes.
 
-**Riscos desta sprint:** a distribuição "cima/baixo" só é observável por quem fica com a carta do trunfo. Mitigação: modelo reduzido do `docs/adr/0002` — `trunfo = baralho.pop(0 ou -1)` e o resto é sorteio, sem modelar a ordem da distribuição.
+**Riscos desta sprint:** a distribuição "cima/baixo" só é observável por quem fica com a carta do trunfo. Mitigação: modelo reduzido do `docs/adr/0003` — `trunfo = baralho.pop(0 ou -1)` e o resto é sorteio, sem modelar a ordem da distribuição.
 
 ---
 
