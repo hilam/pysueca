@@ -1,0 +1,3 @@
+# TCP cru, JSON por linha, snapshot completo a cada evento
+
+O transporte é TCP puro (`asyncio.start_server`), com uma mensagem JSON por linha terminada em `\n`; depois de cada evento o servidor reenvia o estado inteiro da mesa, com a mão de um único destinatário. Alternativas rejeitadas: WebSocket (não existe na stdlib, não temos cliente web, e à mão seriam ~300 linhas de RFC 6455); deltas ou replay de eventos (mais máquina de estados e a clássica dessincronização, para economizar alguns KB); JSON-RPC com `id` e resposta (o jogo é dirigido a eventos, não a chamadas). O snapshot inteiro faz a reconexão custar uma mensagem de `entrar` repetida.
