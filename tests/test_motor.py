@@ -172,3 +172,12 @@ def test_pontuacao_da_mao_jogada() -> None:
     assert sum(mao.pontos) == 120
     assert mao.resultado is Resultado.de_pontos(88, 32)
     assert mao.resultado is Resultado.NORMAL
+
+
+def test_resultado_pelos_limites_do_readme() -> None:
+    assert Resultado.de_pontos(60, 60) is Resultado.EMPATE
+    assert Resultado.de_pontos(61, 59) is Resultado.NORMAL
+    assert Resultado.de_pontos(90, 30) is Resultado.NORMAL
+    assert Resultado.de_pontos(91, 29) is Resultado.QUILO
+    assert Resultado.de_pontos(119, 1) is Resultado.QUILO
+    assert Resultado.de_pontos(120, 0) is Resultado.BANDEIRA
