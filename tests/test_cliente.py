@@ -489,3 +489,9 @@ def test_o_servidor_usa_a_porta_default() -> None:
     args = analisar_servidor([])
     assert args.host == "127.0.0.1"
     assert args.porta == 8765
+
+
+def test_argumento_desconhecido_sai_com_erro() -> None:
+    with pytest.raises(SystemExit) as saida:
+        analisar(["Ana", "--turbo"])
+    assert saida.value.code != 0
