@@ -11,7 +11,10 @@ def test_trunfo_vence_o_naipe_puxado() -> None:
     vaza = Vaza(
         naipe_puxado=Naipe.COPAS,
         trunfo=Naipe.OUROS,
-        jogadas=[(0, Carta(Naipe.COPAS, Valor.AS)), (1, Carta(Naipe.OUROS, Valor.DOIS))],
+        jogadas=[
+            (0, Carta(Naipe.COPAS, Valor.AS)),
+            (1, Carta(Naipe.OUROS, Valor.DOIS)),
+        ],
     )
     assert vaza.vencedor == 1
 
@@ -20,7 +23,10 @@ def test_entre_trunfos_vence_a_maior() -> None:
     vaza = Vaza(
         naipe_puxado=Naipe.COPAS,
         trunfo=Naipe.OUROS,
-        jogadas=[(0, Carta(Naipe.OUROS, Valor.REI)), (1, Carta(Naipe.OUROS, Valor.SETE))],
+        jogadas=[
+            (0, Carta(Naipe.OUROS, Valor.REI)),
+            (1, Carta(Naipe.OUROS, Valor.SETE)),
+        ],
     )
     assert vaza.vencedor == 1
 
