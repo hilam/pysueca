@@ -112,28 +112,28 @@
 
 ## 9. Retrabalho de verificação (RED → GREEN)
 
-- [ ] 9.1 Teste do cenário `erro faz ida-e-volta` (RED esperado verde — o codec do `erro` já existe; fecha as 3 linhas descobertas do relatório)
-- [ ] 9.2 Nenhuma implementação nova (GREEN)
-- [ ] 9.3 Commit: `test(04-protocolo): erro faz ida-e-volta`
+- [x] 9.1 Teste do cenário `erro faz ida-e-volta` (RED esperado verde — o codec do `erro` já existe; fecha as 3 linhas descobertas do relatório)
+- [x] 9.2 Nenhuma implementação nova (GREEN)
+- [x] 9.3 Commit: `test(04-protocolo): erro faz ida-e-volta`
 
-- [ ] 9.4 Teste do caso limite `EDGE - campo com tipo errado vira erro` (RED)
-- [ ] 9.5 `_validar`: campo com tipo errado passa a devolver `campo_invalido` em vez de `campo_faltando` (GREEN)
-- [ ] 9.6 Commit: `test(04-protocolo): campo com tipo errado vira erro` → `feat(04-protocolo): distingue campo_invalido de campo_faltando`
+- [x] 9.4 Teste do caso limite `EDGE - campo com tipo errado vira erro` (RED)
+- [x] 9.5 `_validar`: campo com tipo errado passa a devolver `campo_invalido` em vez de `campo_faltando` (GREEN)
+- [x] 9.6 Commit: `test(04-protocolo): campo com tipo errado vira erro` → `feat(04-protocolo): distingue campo_invalido de campo_faltando`
 
-- [ ] 9.7 Adicionar `pytest-cov` ao grupo `dev` do `pyproject.toml` e instalar (`uv sync`)
-- [ ] 9.8 Commit: `chore(04-protocolo): adiciona pytest-cov às dev-deps`
+- [x] 9.7 Adicionar `pytest-cov` ao grupo `dev` do `pyproject.toml` e instalar (`uv sync`)
+- [x] 9.8 Commit: `chore(04-protocolo): adiciona pytest-cov às dev-deps`
 
 ## 10. Layout: imagens para docs
 
-- [ ] 10.1 `git mv src/pysueca/imagens docs/imagens` e atualizar as referências em `AGENTS.md` (mapa de arquivos), `PLANO-PYSUECA-V1.md` ("Feito até agora") e `docs/adr/0004`
-- [ ] 10.2 Commit: `refactor(04-protocolo): move as imagens para docs/`
+- [x] 10.1 `git mv src/pysueca/imagens docs/imagens` e atualizar as referências em `AGENTS.md` (mapa de arquivos), `PLANO-PYSUECA-V1.md` ("Feito até agora") e `docs/adr/0004`
+- [x] 10.2 Commit: `refactor(04-protocolo): move as imagens para docs/`
 
 ## 11. Validação Final (retrabalho)
 
-- [ ] 11.1 `AGENTS.md`: documenta `uv run pytest --cov=pysueca --cov-fail-under=80`
-- [ ] 11.2 Lint e formatação: `uv run ruff check` e `uv run ruff format --check`
-- [ ] 11.3 Tipos: `uv run mypy src`
-- [ ] 11.4 Suite com o gate: `uv run pytest --cov=pysueca --cov-fail-under=80`
+- [x] 11.1 `AGENTS.md`: documenta `uv run pytest --cov=pysueca --cov-fail-under=80`
+- [x] 11.2 Lint e formatação: `uv run ruff check` e `uv run ruff format --check`
+- [x] 11.3 Tipos: `uv run mypy src`
+- [x] 11.4 Suite com o gate: `uv run pytest --cov=pysueca --cov-fail-under=80`
 - [ ] 11.5 Re-verificar e atualizar o relatório: `/pi-verificar`
 
 ## Notas de Execução
@@ -144,3 +144,14 @@
 - **RED esperado verde (cobertura) e commits agrupados:** 4.4 e 4.7 são fronteiras da mesma guarda de 4.2 e fecharam no commit `test(04-protocolo): linha no limite é aceita e nenhum outro erro é fatal`; 6.4 e 6.7 são o mesmo mapa de 6.2 e fecharam como cobertura (commits `test(...)`, sem `feat`).
 - **Ordem RED→GREEN do `estado faz ida-e-volta`:** o codec do `Estado` chegou a ser escrito antes do teste; foi revertido (`git checkout`), o teste entrou como RED genuíno e só então o `feat` voltou.
 - **8.4:** `ruff format` aplicado só em `protocolo.py` e `test_protocolo.py` (os dois arquivos da sprint); `main.py`/`get_images.py` intocados.
+
+## Notas de Execução (retrabalho da verificação)
+
+- **9.1/9.2 (RED esperado verde):** o codec do `erro` já existia (fases 1–8); o teste `erro_faz_ida_e_volta` fechou as 3 linhas descobertas do relatório (`_para_dados` do `erro`, `return Erro(dados["motivo"])`) — `protocolo.py` foi de 97,9% para **100%**.
+- **9.4/9.5 (RED genuíno):** o teste de campo com tipo errado falhou com `campo_faltando` antes de o `_validar` passar a devolver `campo_invalido`.
+- **9.7:** `pytest-cov 7.1.0` (+ `coverage 7.16.2`) no grupo `dev`; `pyproject.toml` e `uv.lock` atualizados.
+- **10.1:** `git mv` de 41 arquivos (`docs/imagens/`), com as referências de `AGENTS.md`, `PLANO-PYSUECA-V1.md` e `docs/adr/0004` no mesmo commit. Os relatórios históricos das sprints 01–03 e os `design.md`/`tasks.md` antigos citam o caminho velho de propósito (registro da época).
+- **11.1 (além do comando):** o `AGENTS.md` tinha o mapa desatualizado desde a sprint 02 — `motor.py` e `protocolo.py` não constavam — e a invariante ainda dizia "o futuro `motor.py`"; corrigidos junto do comando do gate.
+- **11.4:** `uv run pytest --cov=pysueca --cov-fail-under=80` → `93.63%` (gate de 80% atingido). `protocolo.py`, `motor.py`, `carta.py` e `baralho.py` em 100%; `main.py` em 0% (pré-existente, reescrita na sprint 06) e `__init__.py` em 50%.
+- **11.2/11.3 (pré-existentes, não regressões):** `uv run ruff check` acusa 4 erros — `main.py:14,21,28` (RUF012) e `docs/imagens/get_images.py:1` (I001, agora no caminho novo) — e `uv run mypy src` acusa 1 (`main.py:52`). Todos endereçados na sprint 06. `protocolo.py` e `test_protocolo.py` limpos em `ruff check` e `ruff format --check`.
+- **11.5:** é o handoff para `/pi-verificar` (o `advance sprint-verificacao` fecha esta sprint); fica aberto aqui de propósito.
