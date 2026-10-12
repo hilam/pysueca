@@ -1,5 +1,7 @@
 """Testes do motor puro: carta e baralho (sprint 01)."""
 
+import random
+
 from pysueca.baralho import Baralho
 from pysueca.carta import Carta, Naipe, Valor
 
@@ -77,3 +79,11 @@ def test_trunfo_vence_o_naipe_puxado() -> None:
     as_de_copas = Carta(Naipe.COPAS, Valor.AS)
     assert dois_de_trunfo.vence(as_de_copas, Naipe.COPAS, Naipe.OUROS)
     assert not as_de_copas.vence(dois_de_trunfo, Naipe.COPAS, Naipe.OUROS)
+
+
+def test_mesma_seed_mesma_ordem() -> None:
+    um = Baralho(random.Random(42))
+    dois = Baralho(random.Random(42))
+    um.embaralhar()
+    dois.embaralhar()
+    assert um.cartas == dois.cartas
