@@ -40,3 +40,10 @@ def test_as_mais_forte_que_sete() -> None:
     as_de_copas = Carta(Naipe.COPAS, Valor.AS)
     sete_de_copas = Carta(Naipe.COPAS, Valor.SETE)
     assert as_de_copas.forca > sete_de_copas.forca
+
+
+def test_texto_ida_e_volta_preserva_naipe_e_valor() -> None:
+    carta = Carta.de_texto("7H")
+    assert carta.naipe is Naipe.COPAS
+    assert carta.valor is Valor.SETE
+    assert carta.texto() == "7H"
