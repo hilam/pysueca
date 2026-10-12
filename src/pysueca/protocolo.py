@@ -78,7 +78,7 @@ def desserializar(linha: bytes) -> Entrar | Jogar | Responder | Erro:
     if motivo is not None:
         return Erro(motivo)
     if tipo == "entrar":
-        return Entrar(dados["nome"])
+        return Entrar(dados["nome"].strip())
     if tipo == "jogar":
         return Jogar(Carta.de_texto(dados["carta"]))
     return Responder(dados["cima"])
