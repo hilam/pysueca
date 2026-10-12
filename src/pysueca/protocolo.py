@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass, field
 
 from pysueca.carta import Carta
-from pysueca.motor import Jogo
+from pysueca.motor import ErroJogada, Jogo
 
 TETO_LINHA = 4096
 
@@ -78,6 +78,11 @@ def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
         encerrado=jogo.encerrado,
         vencedor=jogo.vencedor,
     )
+
+
+def erro_de_jogada(erro: ErroJogada) -> Erro:
+    """Formata o erro de regra do motor como a mensagem `erro` de fio."""
+    return Erro(erro.value)
 
 
 def serializar(mensagem: Entrar | Jogar | Responder | Estado | Erro) -> bytes:
