@@ -33,6 +33,8 @@ class Mao:
         self.embaralhador = embaralhador
         self.rng = rng if rng is not None else random.Random()
         self.maos: list[list[Carta]] = [[], [], [], []]
+        self.vez = embaralhador
+        self.vaza: Vaza | None = None
 
     def preparar(self, cima: bool = True) -> None:
         baralho = Baralho(self.rng)
@@ -45,3 +47,13 @@ class Mao:
         for i, carta in enumerate(cartas):
             self.maos[(dador + 1 + i) % 4].append(carta)
         self.maos[dador].append(self.carta_trunfo)
+        self.vez = self.embaralhador
+        self.vaza = None
+
+    def jogar(self, assento: int, carta: Carta) -> None:
+        self.maos[assento].remove(carta)
+        if self.vaza is None:
+            self.vaza = Vaza(carta.naipe, self.trunfo, [(assento, carta)])
+        else:
+            self.vaza.jogadas.append((assento, carta))
+        self.vez = (assento + 1) % 4
