@@ -124,3 +124,14 @@ def test_seeds_diferentes_embaralham_diferente() -> None:
     um.embaralhar()
     dois.embaralhar()
     assert um.cartas != dois.cartas
+
+
+def test_embaralha_sem_o_random_global(monkeypatch: pytest.MonkeyPatch) -> None:
+    def explode(*args: object, **kwargs: object) -> None:
+        raise AssertionError("embaralhar usou o random global")
+
+    monkeypatch.setattr(random, "shuffle", explode)
+    monkeypatch.setattr(random, "randrange", explode)
+    baralho = Baralho()
+    baralho.embaralhar()
+    assert len(baralho.cartas) == 40
