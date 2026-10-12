@@ -2,7 +2,7 @@
 
 import random
 
-from pysueca.motor import ErroJogada, Jogo
+from pysueca.motor import ErroJogada, Jogo, Resultado
 
 
 def test_embaralhador_puxa_a_primeira_vaza() -> None:
@@ -23,3 +23,10 @@ def test_jogo_jogar_devolve_o_erro_do_motor() -> None:
     assert jogo.jogar(2, carta) is ErroJogada.FORA_DA_VEZ
     assert carta in jogo.mao.maos[2]
     assert jogo.mao.vez == 0
+
+
+def test_partidas_que_a_mao_vale() -> None:
+    assert Resultado.EMPATE.partidas == 0
+    assert Resultado.NORMAL.partidas == 1
+    assert Resultado.QUILO.partidas == 2
+    assert Resultado.BANDEIRA.partidas == 4
