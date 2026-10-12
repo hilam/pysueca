@@ -28,7 +28,7 @@ O servidor SHALL ser o único dono do `Jogo` e dos quatro assentos, e SHALL liga
 - **THEN** o servidor devolve `erro` com motivo `mensagem_invalida` e a mesa não muda
 
 ### Requirement: Início da mão pelo respondente
-Depois de cada assento ocupado, o servidor SHALL transmitir o snapshot a todos os assentos ocupados. Com os quatro assentos ocupados e a mão ainda não preparada, o snapshot SHALL apontar como `respondente` o parceiro do dador, e `responder` desse assento SHALL preparar a mão com `cima`/`baixo` e transmitir o snapshot das dez cartas. `responder` de um assento que não é o respondente, com a mesa incompleta ou com a mão já preparada, SHALL ser recusado com `erro` e MUST NOT mudar a mão.
+Depois de cada assento ocupado, o servidor SHALL transmitir o snapshot a todos os assentos ocupados. Com os quatro assentos ocupados e a mão ainda não preparada, o snapshot SHALL apontar como `respondente` o parceiro do dador, e `responder` desse assento SHALL preparar a mão com `cima`/`baixo` e transmitir o snapshot das dez cartas. `responder` de um assento que não é o respondente, com a mesa incompleta ou com a mão já preparada, SHALL ser recusado com `erro mesa_incompleta` (menos de quatro assentos) ou `erro fora_de_hora` (não é o respondente ou a mão já preparada) e MUST NOT mudar a mão.
 
 #### Scenario: quatro assentos abrem a pergunta cima ou baixo
 - **WHEN** o quarto assento é ocupado
@@ -40,7 +40,7 @@ Depois de cada assento ocupado, o servidor SHALL transmitir o snapshot a todos o
 
 #### Scenario: responder fora de hora é recusado
 - **WHEN** um assento manda `responder` sem ser o respondente, ou com a mesa incompleta, ou com a mão já preparada
-- **THEN** o servidor devolve `erro` e a mão continua como estava
+- **THEN** o servidor devolve `erro mesa_incompleta` com a mesa incompleta e `erro fora_de_hora` nos outros dois casos, e a mão continua como estava
 
 ### Requirement: Jogada validada pelo motor
 O servidor SHALL validar cada `jogar` chamando `Jogo.jogar` (`motor.py:153`), sem reavaliar vez, posse ou naipe. Um `ErroJogada` SHALL virar `erro` endereçado só à conexão que jogou, e a mesa SHALL seguir. Uma jogada legal SHALL ser transmitida a todos os assentos ocupados como snapshot novo. Quando a décima vaza fecha, o servidor SHALL contar a mão com `Jogo.encerrar_mao` (`motor.py:156`) e transmitir o placar; se o jogo não acabou, a mão seguinte SHALL abrir a pergunta cima ou baixo para o novo respondente. Ao somar a quarta partida, o servidor SHALL encerrar o jogo, transmitir o snapshot final com `encerrado` e `vencedor` e MUST NOT abrir mão nova; a mesa SHALL continuar de pé para o cliente ler o placar.
