@@ -279,3 +279,15 @@ def test_a_selecao_volta_a_primeira_carta_com_a_mao_nova() -> None:
         assert await falso.proxima() == Jogar(Carta.de_texto("AD"))
 
     rodar("Ana", cenario)
+
+
+def test_com_a_mao_vazia_nada_e_jogado() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(Estado(assentos=["Ana", "Bia", None, None], mao=[]))
+        await aguardar(pilot, lambda: "2 de 4" in painel(app, "#assentos"))
+        await pilot.press("enter")
+        with pytest.raises(TimeoutError):
+            await asyncio.wait_for(falso.recebidas.get(), 0.1)
+
+    rodar("Ana", cenario)
