@@ -614,7 +614,9 @@ def test_mensagem_invalida_do_fio_nao_derruba_o_app() -> None:
         assert await falso.proxima() == Entrar("Ana")
         await falso.enviar_cru(b"isto nao e json\n")
         await aguardar(pilot, lambda: "não deu para ler" in painel(app, "#aviso"))
-        assert "A mesa mandou uma mensagem que não deu para ler" in painel(app, "#aviso")
+        assert "A mesa mandou uma mensagem que não deu para ler" in painel(
+            app, "#aviso"
+        )
         assert "json_invalido" not in painel(app, "#aviso")
         await falso.enviar(Estado(assentos=["Ana", "Bia", None, None], mao=[]))
         await aguardar(pilot, lambda: "2 de 4" in painel(app, "#assentos"))
