@@ -96,3 +96,17 @@ def test_assento_com_o_naipe_puxado_e_obrigado_a_joga_lo() -> None:
 
     assert mao.jogar(0, paus) is ErroJogada.NAO_SEGUIU_NAIPE
     assert paus in mao.maos[0]
+
+
+def test_sem_o_naipe_puxado_pode_jogar_qualquer_carta() -> None:
+    mao = Mao(0, random.Random(1))
+    mao.preparar()
+
+    trunfo = Carta(Naipe.OUROS, Valor.DOIS)
+    descarte = Carta(Naipe.PAUS, Valor.AS)
+    mao.maos[0] = [trunfo, descarte]
+    mao.vez = 0
+    mao.vaza = Vaza(Naipe.COPAS, Naipe.OUROS, [(1, Carta(Naipe.COPAS, Valor.REI))])
+
+    assert mao.jogar(0, trunfo) is None
+    assert mao.vaza.jogadas[-1] == (0, trunfo)
