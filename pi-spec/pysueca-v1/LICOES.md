@@ -52,3 +52,18 @@
 **Evidências:** `pi-spec/pysueca-v1/execucao/02-vaza-e-mao/relatorio-verificacao.md`
 
 ---
+
+## Sprint 03-jogo-e-papeis — Jogo e papéis — 2026-10-12
+
+**Aprendizado:** o `Jogo` fechou como dono único da mesa (`preparar`/`jogar`/`encerrar_mao` + placar + `encerrado`/`vencedor`) reaproveitando `Mao`/`Vaza` sem tocar na sprint 02 — `motor.py` ficou em 99% de cobertura e `test_jogo.py` com 11 testes. O RED fez o seu trabalho de verdade uma vez: o teste de quilo (`test_quilo_soma_duas_partidas_a_dupla_1`) **falhou** porque o próprio `qa-plan.md` trazia `41 a 79`, que é vitória normal, não quilo; o vermelho revelou o defeito do artefato antes de virar código errado (`29 a 91` é quilo). O que de novo **não** funcionou: repetiu-se o "RED esperado verde" (tasks 2.4, 4.4, 4.7, 6.4, 6.7), agora explícito no `tasks.md` como cobertura — sinal de teste ainda fraco na 3ª sprint seguida.
+
+**O que muda nas próximas sprints:** tratar os cenários de cobertura declarados no `qa-plan.md` como EDGE de ramo (não como RED independente) e, ao escrever o teste, cobrir de fato o ramo novo — o cenário de empate 60–60 só ficou observável depois de receber as asserções de rotação (`5.1`) e `encerrado is False` (`6.1`), que ficaram vermelhas junto do seu GREEN. Sempre que um teste de placar falhar, desconfiar primeiro da aritmética do artefato (soma 120, faixa 91–119 para quilo).
+
+**Retrabalho adiado:**
+
+| O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
+|---|---|---|
+| Ancorar `Jogo.vencedor is None` enquanto o jogo corre (`motor.py:183`, única linha descoberta) | baixa | contrato documentado sem teste; protocolo (04) e TUI (06) trazem seus próprios testes |
+| `ruff`/`mypy` vermelhos em `main.py` e `imagens/get_images.py` | baixa | pré-existentes desde a sprint 01; `main.py` é reescrita na sprint 06 |
+
+**Evidências:** `pi-spec/pysueca-v1/execucao/03-jogo-e-papeis/relatorio-verificacao.md`
