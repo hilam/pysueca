@@ -1,10 +1,12 @@
 """Testes do protocolo de fio — mensagens, validação e snapshot (sprint 04)."""
 
 import json
+import random
 
 import pytest
 
 from pysueca.carta import Carta, Naipe, Valor
+from pysueca.motor import Jogo
 from pysueca.protocolo import (
     TETO_LINHA,
     Entrar,
@@ -13,6 +15,7 @@ from pysueca.protocolo import (
     LinhaLonga,
     Responder,
     desserializar,
+    estado,
     serializar,
 )
 
@@ -83,3 +86,12 @@ def test_linha_no_limite_e_aceita() -> None:
 def test_nenhum_outro_erro_e_fatal() -> None:
     for linha in (b"{", b'{"tipo": "assobiar"}', b'{"tipo": "jogar"}'):
         assert isinstance(desserializar(linha), Erro)
+
+
+def test_snapshot_traz_a_propria_mao() -> None:
+    jogo = Jogo(random.Random(7), embaralhador=0)
+    jogo.preparar(cima=True)
+
+    snap = estado(jogo, ["Ana", "Bia", "Caio", "Dora"], assento=2)
+
+    assert snap.mao == [carta.texto() for carta in jogo.mao.maos[2]]
