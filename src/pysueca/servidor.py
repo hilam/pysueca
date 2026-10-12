@@ -8,6 +8,7 @@ from pysueca.motor import Jogo
 from pysueca.protocolo import (
     TETO_LINHA,
     Entrar,
+    Erro,
     Mensagem,
     desserializar,
     estado,
@@ -38,6 +39,9 @@ class Servidor:
                     break
                 mensagem = desserializar(linha)
                 if isinstance(mensagem, Entrar):
+                    if self._em_uso(mensagem.nome):
+                        await self._enviar(escritor, Erro("nome_em_uso"))
+                        continue
                     assento = self._sentar(mensagem.nome, escritor)
                     await self._enviar(escritor, estado(self.jogo, self.nomes, assento))
         finally:
@@ -50,6 +54,13 @@ class Servidor:
         self.nomes[assento] = nome
         self.conexoes[assento] = escritor
         return assento
+
+    def _em_uso(self, nome: str) -> bool:
+        """Só a conexão viva bloqueia o nome; o assento reservado aceita o dono de volta."""
+        return any(
+            guardado == nome and conexao is not None
+            for guardado, conexao in zip(self.nomes, self.conexoes)
+        )
 
     async def _enviar(self, escritor: asyncio.StreamWriter, mensagem: Mensagem) -> None:
         escritor.write(serializar(mensagem))
