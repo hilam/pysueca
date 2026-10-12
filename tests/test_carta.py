@@ -109,3 +109,10 @@ def test_forca_entre_cartas_de_0_ponto() -> None:
     seis = Carta(Naipe.COPAS, Valor.SEIS)
     dois = Carta(Naipe.COPAS, Valor.DOIS)
     assert seis.forca > dois.forca
+
+
+def test_texto_invalido_rejeitado() -> None:
+    with pytest.raises(ValueError):
+        Carta.de_texto("7X")
+    with pytest.raises(ValueError):
+        Carta.de_texto("1H")
