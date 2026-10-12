@@ -16,7 +16,7 @@ Regras em `README.md`, vocabulário em `CONTEXT.md`, decisões em `docs/adr/`.
 - `src/pysueca/carta.py` — `Naipe`, `Valor`, `Carta`: pontos, força, texto `"7H"` ida-e-volta e `vence(outra, naipe_puxado, trunfo)`
 - `src/pysueca/baralho.py` — as 40 cartas e `embaralhar()`, com `random.Random` injetado
 - `src/pysueca/main.py` — esqueleto Textual (substituído na sprint 06)
-- `src/pysueca/imagens/` — PNGs sem uso, material para um modo imagem futuro
+- `docs/imagens/` — PNGs sem uso, material para um modo imagem futuro
 - `tests/` — testes do motor puro
 - `docs/adr/` — decisões arquiteturais (0001–0005)
 - `pi-spec/` — plano e sprints
