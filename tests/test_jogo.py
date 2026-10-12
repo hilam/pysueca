@@ -111,6 +111,20 @@ def test_jogo_acaba_ao_chegar_a_4_partidas() -> None:
     assert jogo.vencedor == 0
 
 
+def test_jogo_encerrado_nao_abre_nova_mao() -> None:
+    jogo = Jogo(random.Random(1), embaralhador=0)
+    jogo.mao = _MaoDePlacar((120, 0))
+    jogo.encerrar_mao()
+    assert jogo.encerrado is True
+
+    embaralhador = jogo.embaralhador
+    mao = jogo.mao
+    jogo.encerrar_mao()
+    assert jogo.embaralhador == embaralhador
+    assert jogo.mao is mao
+    assert jogo.partidas == [4, 0]
+
+
 def test_papeis_andam_um_assento_por_mao() -> None:
     jogo = Jogo(random.Random(7), embaralhador=0)
     jogo.preparar(cima=True)
