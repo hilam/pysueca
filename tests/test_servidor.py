@@ -128,3 +128,19 @@ def test_nao_sentado_e_recusado() -> None:
             await fechar((leitor, escritor), (ana, ana_escritor))
 
     asyncio.run(cenario())
+
+
+def test_mensagem_de_direcao_errada_e_recusada() -> None:
+    async def cenario() -> None:
+        async with mesa() as (servidor, porta):
+            leitor, escritor = await sentar(porta, "Ana")
+            await receber(leitor)
+            await enviar(escritor, Estado(assentos=[None, None, None, None], mao=[]))
+            await enviar(escritor, Erro("qualquer"))
+
+            assert await receber(leitor) == Erro("mensagem_invalida")
+            assert await receber(leitor) == Erro("mensagem_invalida")
+            assert servidor.nomes == ["Ana", None, None, None]
+            await fechar((leitor, escritor))
+
+    asyncio.run(cenario())
