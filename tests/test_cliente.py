@@ -583,8 +583,9 @@ def test_congelado_o_cliente_ainda_manda_e_o_servidor_recusa() -> None:
         await pilot.press("enter")
         assert await falso.proxima() == Jogar(Carta.de_texto("7H"))
         await falso.enviar(Erro("mesa_congelada"))
-        await aguardar(pilot, lambda: "mesa_congelada" in painel(app, "#aviso"))
-        assert "mesa_congelada" in painel(app, "#aviso")
+        await aguardar(pilot, lambda: "a jogada não valeu" in painel(app, "#aviso"))
+        assert "A mesa está congelada: a jogada não valeu" in painel(app, "#aviso")
+        assert "mesa_congelada" not in painel(app, "#aviso")
 
     rodar("Ana", cenario)
 
