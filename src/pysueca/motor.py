@@ -156,6 +156,8 @@ class Jogo:
     def encerrar_mao(self) -> Resultado:
         """Soma a mão ao placar da dupla vencedora e abre a mão seguinte."""
         resultado = self.mao.resultado
+        if self.encerrado:
+            return resultado
         if resultado is not Resultado.EMPATE:
             dupla = 0 if self.mao.pontos[0] > self.mao.pontos[1] else 1
             self.partidas[dupla] += resultado.partidas
