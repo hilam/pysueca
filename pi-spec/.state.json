@@ -1,6 +1,6 @@
 {
   "iniciativa": "pysueca-v1",
-  "fase": "sprint-implementacao",
+  "fase": "concluido",
   "plano": {
     "status": "aprovado"
   },
@@ -14,6 +14,6 @@
     "04-protocolo": "concluida",
     "05-servidor": "concluida",
     "06-cliente-tui": "concluida",
-    "07-polimento": "proposta"
+    "07-polimento": "concluida"
   }
 }
