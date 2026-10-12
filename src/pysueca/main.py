@@ -72,7 +72,11 @@ def desenhar_assentos(estado: Estado) -> str:
     ocupados = [nome for nome in estado.assentos if nome is not None]
     linhas = [f"{len(ocupados)} de 4"]
     for assento, nome in enumerate(estado.assentos):
-        linhas.append(nome if nome is not None else f"assento {assento}: vago")
+        if nome is None:
+            linhas.append(f"assento {assento}: vago")
+        else:
+            contagem = estado.contagens[assento] if assento < len(estado.contagens) else 0
+            linhas.append(f"{nome}: {contagem}")
     return "\n".join(linhas)
 
 
