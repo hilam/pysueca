@@ -14,3 +14,10 @@ def test_baralho_tem_40_cartas_distintas() -> None:
     baralho = Baralho()
     assert len(baralho.cartas) == 40
     assert len(set(baralho.cartas)) == 40
+
+
+def test_cada_naipe_tem_os_10_valores() -> None:
+    baralho = Baralho()
+    for naipe in Naipe:
+        valores = {carta.valor for carta in baralho.cartas if carta.naipe is naipe}
+        assert valores == set(Valor)
