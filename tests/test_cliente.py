@@ -12,7 +12,13 @@ import pytest
 from textual.widgets import Static
 
 from pysueca.carta import Carta
-from pysueca.main import RespostaScreen, SuecaApp, analisar, desenhar_carta
+from pysueca.main import (
+    RespostaScreen,
+    SuecaApp,
+    analisar,
+    desenhar_carta,
+    desenhar_mesa,
+)
 from pysueca.protocolo import (
     Entrar,
     Erro,
@@ -192,6 +198,31 @@ def test_a_mesa_mostra_trunfo_vaza_e_placar() -> None:
         assert "1 x 2" in mesa
 
     rodar("Ana", cenario)
+
+
+def test_a_mesa_desenha_a_vaza_vazia_e_a_vaza_cheia() -> None:
+    vazia = desenhar_mesa(
+        Estado(assentos=["Ana", "Bia", "Caio", "Duda"], mao=[], carta_trunfo="AH")
+    )
+    assert vazia.splitlines() == ["Trunfo: [red]A♥[/red]", "Placar: 0 x 0"]
+
+    cheia = desenhar_mesa(
+        Estado(
+            assentos=["Ana", "Bia", "Caio", "Duda"],
+            mao=[],
+            carta_trunfo="7C",
+            vaza=[(0, "7H"), (1, "7C"), (2, "7S"), (3, "7D")],
+            partidas=[1, 2],
+        )
+    )
+    assert cheia.splitlines() == [
+        "Trunfo: 7♣",
+        "Ana: [red]7♥[/red]",
+        "Bia: 7♣",
+        "Caio: 7♠",
+        "Duda: [red]7♦[/red]",
+        "Placar: 1 x 2",
+    ]
 
 
 def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
