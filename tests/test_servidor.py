@@ -54,6 +54,14 @@ async def fechar(*conexoes: tuple[asyncio.StreamReader, asyncio.StreamWriter]) -
         await escritor.wait_closed()
 
 
+async def sentar_quatro(porta: int) -> list[tuple[asyncio.StreamReader, asyncio.StreamWriter]]:
+    """Quatro conexões sentadas nos quatro assentos, cada uma já com o snapshot."""
+    conexoes = [await sentar(porta, nome) for nome in ("Ana", "Bia", "Caio", "Duda")]
+    for leitor, _ in conexoes:
+        await receber(leitor)
+    return conexoes
+
+
 def test_entrar_senta_no_primeiro_assento_livre() -> None:
     async def cenario() -> None:
         async with mesa() as (_, porta):
@@ -73,15 +81,29 @@ def test_entrar_senta_no_primeiro_assento_livre() -> None:
 def test_nome_ja_sentado_e_ativo_e_recusado() -> None:
     async def cenario() -> None:
         async with mesa() as (servidor, porta):
-            conexoes = [await sentar(porta, nome) for nome in ("Ana", "Bia", "Caio", "Duda")]
-            for leitor, _ in conexoes:
-                await receber(leitor)
+            conexoes = await sentar_quatro(porta)
 
             leitor, escritor = await asyncio.open_connection("127.0.0.1", porta)
             await enviar(escritor, Entrar("Ana"))
             resposta = await receber(leitor)
 
             assert resposta == Erro("nome_em_uso")
+            assert servidor.nomes == ["Ana", "Bia", "Caio", "Duda"]
+            await fechar((leitor, escritor), *conexoes)
+
+    asyncio.run(cenario())
+
+
+def test_mesa_cheia_recusa_o_quinto() -> None:
+    async def cenario() -> None:
+        async with mesa() as (servidor, porta):
+            conexoes = await sentar_quatro(porta)
+
+            leitor, escritor = await asyncio.open_connection("127.0.0.1", porta)
+            await enviar(escritor, Entrar("Eva"))
+            resposta = await receber(leitor)
+
+            assert resposta == Erro("mesa_cheia")
             assert servidor.nomes == ["Ana", "Bia", "Caio", "Duda"]
             await fechar((leitor, escritor), *conexoes)
 
