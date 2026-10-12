@@ -149,7 +149,7 @@ def _validar(tipo: str, dados: dict) -> str | None:
         return "campo_faltando"
     for campo, tipo_esperado in esperados.items():
         if not isinstance(dados[campo], tipo_esperado):
-            return "campo_faltando"
+            return "campo_invalido"
     return None
 
 
