@@ -159,6 +159,19 @@ class Jogo:
         if resultado is not Resultado.EMPATE:
             dupla = 0 if self.mao.pontos[0] > self.mao.pontos[1] else 1
             self.partidas[dupla] += resultado.partidas
-        self.embaralhador = (self.embaralhador + 1) % 4
-        self.mao = Mao(self.embaralhador, self.rng)
+        if not self.encerrado:
+            self.embaralhador = (self.embaralhador + 1) % 4
+            self.mao = Mao(self.embaralhador, self.rng)
         return resultado
+
+    @property
+    def encerrado(self) -> bool:
+        """A mesa acabou quando uma dupla alcança 4 partidas."""
+        return max(self.partidas) >= 4
+
+    @property
+    def vencedor(self) -> int | None:
+        """A dupla que alcançou 4 partidas, ou `None` enquanto o jogo corre."""
+        if not self.encerrado:
+            return None
+        return self.partidas.index(max(self.partidas))
