@@ -63,3 +63,10 @@ def test_entre_trunfos_vence_a_maior() -> None:
     rei_de_trunfo = Carta(Naipe.COPAS, Valor.REI)
     assert sete_de_trunfo.vence(rei_de_trunfo, Naipe.COPAS, Naipe.COPAS)
     assert not rei_de_trunfo.vence(sete_de_trunfo, Naipe.COPAS, Naipe.COPAS)
+
+
+def test_naipe_puxado_vence_o_descarte_de_forca_maior() -> None:
+    rei_de_copas = Carta(Naipe.COPAS, Valor.REI)
+    as_de_paus = Carta(Naipe.PAUS, Valor.AS)
+    assert rei_de_copas.vence(as_de_paus, Naipe.COPAS, Naipe.OUROS)
+    assert not as_de_paus.vence(rei_de_copas, Naipe.COPAS, Naipe.OUROS)
