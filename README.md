@@ -60,3 +60,22 @@ Ganha o jogo a dupla que fizer 4 partidas primeiro. A bandeira vale 4 e encerra 
 * Permitir que seja jogado online entre jogadores em computadores diferentes, usando sockets
 
 No jogo online, uma jogada ilegal (não seguir o naipe puxado) é simplesmente **rejeitada pelo servidor** — ela nem chega à mesa. A regra de "perder o jogo" por ser pego existe só para o jogo de mesa, onde não há árbitro.
+
+#### Roteiro de quatro terminais
+
+Em um terminal, suba a mesa:
+
+```bash
+uv run pysueca-servidor
+```
+
+Nos outros quatro terminais, sente um jogador em cada um:
+
+```bash
+uv run pysueca Ana
+uv run pysueca Bia
+uv run pysueca Caio
+uv run pysueca Duda
+```
+
+A ordem de conexão define os assentos 0 a 3 e, portanto, as duplas (0, 2) e (1, 3). Para apontar para outra máquina, use `--host` e `--porta`; os defaults são `127.0.0.1:8765`.
