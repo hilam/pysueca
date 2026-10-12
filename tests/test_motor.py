@@ -134,3 +134,21 @@ def test_quem_levou_a_vaza_puxa_a_seguinte() -> None:
 
     assert len(mao.vazas) == 1
     assert mao.vez == 1
+
+
+def test_mao_completa_sao_10_vazas_e_esvazia_as_maos() -> None:
+    mao = Mao(0, random.Random(7))
+    mao.preparar()
+    rng = random.Random(0)
+
+    while any(mao.maos):
+        assento = mao.vez
+        legais = mao.maos[assento]
+        if mao.vaza is not None:
+            do_naipe = [c for c in legais if c.naipe is mao.vaza.naipe_puxado]
+            if do_naipe:
+                legais = do_naipe
+        assert mao.jogar(assento, rng.choice(legais)) is None
+
+    assert len(mao.vazas) == 10
+    assert all(not maos for maos in mao.maos)
