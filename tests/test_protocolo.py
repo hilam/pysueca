@@ -6,7 +6,7 @@ import random
 import pytest
 
 from pysueca.carta import Carta, Naipe, Valor
-from pysueca.motor import ErroJogada, Jogo
+from pysueca.motor import ErroJogada, Jogo, Vaza
 from pysueca.protocolo import (
     TETO_LINHA,
     Entrar,
@@ -168,3 +168,15 @@ def test_carta_fora_da_mao_vira_erro() -> None:
 
     assert erro == ErroJogada.CARTA_FORA_DA_MAO
     assert erro_de_jogada(erro) == Erro("carta_fora_da_mao")
+
+
+def test_nao_seguir_o_naipe_vira_erro() -> None:
+    jogo = Jogo(random.Random(7), embaralhador=0)
+    jogo.mao.vaza = Vaza(naipe_puxado=Naipe.COPAS, trunfo=Naipe.OUROS)
+    jogo.mao.vez = 0
+    jogo.mao.maos[0] = [Carta(Naipe.COPAS, Valor.DOIS), Carta(Naipe.PAUS, Valor.AS)]
+
+    erro = jogo.jogar(0, Carta(Naipe.PAUS, Valor.AS))
+
+    assert erro == ErroJogada.NAO_SEGUIU_NAIPE
+    assert erro_de_jogada(erro) == Erro("nao_seguiu_naipe")
