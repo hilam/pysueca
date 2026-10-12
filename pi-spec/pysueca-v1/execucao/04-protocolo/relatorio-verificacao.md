@@ -3,6 +3,7 @@
 > **Sprint:** `sprints/04-protocolo/`
 > **PLANO:** `pi-spec/pysueca-v1/PLANO-PYSUECA-V1.md`
 > **Período:** 2026-10-12 — 2026-10-12
+> **Nota:** este relatório é a **re-verificação** que sucede o retrabalho das fases 9–11 do `tasks.md` (o primeiro parecer foi "Retrabalho" nos 3 itens de cobertura/dependência).
 
 ## Cobertura vs qa-plan.md
 
@@ -12,10 +13,12 @@
 | Test: responder faz ida-e-volta | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Mensagens de fio | passou | `test_responder_faz_ida_e_volta` |
 | Test: jogar faz ida-e-volta | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Mensagens de fio | passou | `test_jogar_faz_ida_e_volta` |
 | Test: estado faz ida-e-volta | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Mensagens de fio | passou | `test_estado_faz_ida_e_volta` |
+| Test: erro faz ida-e-volta | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Mensagens de fio | passou | `test_erro_faz_ida_e_volta` — **novo no retrabalho** |
 | EDGE - linha malformada vira erro | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável | passou | `test_linha_malformada_vira_erro` |
 | EDGE - tipo desconhecido vira erro | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável | passou | `test_tipo_desconhecido_vira_erro` |
 | EDGE - campo faltando vira erro | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável | passou | `test_campo_faltando_vira_erro` |
 | EDGE - campo extra vira erro | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável | passou | `test_campo_extra_vira_erro` |
+| EDGE - campo com tipo errado vira erro | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável | passou | `test_campo_com_tipo_errado_vira_erro` — **novo no retrabalho** |
 | Test: nome é normalizado | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável | passou | `test_nome_e_normalizado` |
 | EDGE - nome inválido vira erro | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Validação estrita recuperável | passou | `test_nome_invalido_vira_erro` |
 | EDGE - linha acima do teto é fatal | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Teto de bytes por linha | passou | `test_linha_acima_do_teto_e_fatal` |
@@ -29,41 +32,39 @@
 | EDGE - carta fora da mão vira erro | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Erro de jogada formatado | passou | `test_carta_fora_da_mao_vira_erro` |
 | EDGE - não seguir o naipe vira erro | `sprints/04-protocolo/specs/protocolo/spec.md` → Requirement: Erro de jogada formatado | passou | `test_nao_seguir_o_naipe_vira_erro` |
 
-**20/20 cenários com teste e verde.** Nenhum `CRITICAL` falhou.
+**22/22 cenários com teste e verde.** Nenhum `CRITICAL` falhou.
 
 ## Evidências
 
 - **Comandos executados:**
   ```bash
-  uv run pytest -q
-  uv run pytest tests/test_protocolo.py -q
+  uv run pytest --cov=pysueca --cov-fail-under=80 -q
   uv run ruff check --output-format concise
+  uv run ruff format --check src/pysueca/protocolo.py tests/test_protocolo.py
   uv run mypy src
-  # cobertura via stdlib (sem pytest-cov no projeto):
-  uv run python -c 'import trace, pytest; ...'   # trace.Trace sobre tests/test_protocolo.py
   ```
 - **Saída relevante:**
-  - `uv run pytest -q` → `66 passed in 0.10s` (46 pré-existentes + 20 novos).
-  - `uv run pytest tests/test_protocolo.py -q` → `20 passed in 0.14s`.
-  - `uv run ruff check` → 4 erros, todos pré-existentes e fora da sprint: `main.py:14,21,28` (RUF012) e `imagens/get_images.py:1` (I001). `protocolo.py` e `test_protocolo.py` limpos.
-  - `uv run mypy src` → 1 erro pré-existente: `main.py:52 Cannot determine type of "dark"`. `protocolo.py` limpo.
-- **Cobertura:** `src/pysueca/protocolo.py` **97.9%** (143/146 linhas executáveis; 3 não cobertas: `_para_dados` ramo `erro`, o `return "campo_faltando"` da checagem de tipo em `_validar` e o `return Erro(dados["motivo"])` da desserialização de `erro`). Demais módulos do motor permanecem cobertos pelas sprints 01–03.
+  - `uv run pytest --cov=pysueca --cov-fail-under=80 -q` → `68 passed`; `Required test coverage of 80% reached. Total coverage: 93.63%`.
+  - `uv run ruff check` → 4 erros pré-existentes: `main.py:14,21,28` (RUF012) e `docs/imagens/get_images.py:1` (I001). `protocolo.py` e `test_protocolo.py` limpos.
+  - `uv run ruff format --check` (arquivos da sprint) → `2 files already formatted`.
+  - `uv run mypy src` → 1 erro pré-existente: `main.py:52 Cannot determine type of "dark"`; 6 arquivos checados (inclui `protocolo.py`).
+- **Cobertura por arquivo:** `protocolo.py` **100%** (89/89), `motor.py` 100%, `carta.py` 100%, `baralho.py` 100%, `__init__.py` 50%, `main.py` 0% (sem teste até a 06). **Total 93,63%**, acima do gate de 80%.
 
 ## Gaps / Tech debt
 
-- **Round-trip de `erro` não testado (média):** o `Requirement: Mensagens de fio` diz "cada mensagem SHALL fazer ida-e-volta" e lista `erro` entre os tipos, mas o `qa-plan.md` (seguindo o entregável do PLANO) só cobre `entrar`/`responder`/`jogar`/`estado`. São as 3 linhas não cobertas: `serializar(Erro(...))` e `desserializar(b'{"tipo":"erro",...}')` nunca rodam nos testes. O servidor (05) só envia `erro`, então a lacuna é do caminho de saída, não do caminho jogado.
-- **Campo com tipo errado não tem teste direto (baixa):** o `qa-plan.md` cita o caso em "Casos Limite" (`"carta": 7`, `"cima": "sim"`), mas nenhum `### Test:` o exercita — é o `return "campo_faltando"` de `_validar` não coberto.
-- **Sem ferramenta de cobertura no projeto (baixa):** `pytest-cov`/`coverage` não estão nas dev-deps; a cobertura deste relatório saiu de `trace` (stdlib). Se a cobertura for critério recorrente, vale adicionar `pytest-cov` ao grupo `dev` (fora do escopo desta sprint).
+- **`main.py` em 0% e `__init__.py` em 50% (baixa):** fora do escopo da sprint; `main.py` é reescrita na sprint 06 e a versão em `__init__.py` não é exercitada.
+- **Lint/tipos pré-existentes (baixa):** `main.py` RUF012 ×3 + `mypy:52` e `docs/imagens/get_images.py` I001 (agora no caminho novo) — registrados desde a sprint 01, endereçados na sprint 06.
+- **`get_images.py` saiu do pacote mas segue sob `ruff check` (baixa):** o `git mv` tirou-o do escopo de `--cov=pysueca`, mas o linter varre o repositório inteiro; o I001 continua até a sprint 06 (ou até um `exclude` no `pyproject.toml`, se desejado).
 
 ## Decisão
 
-- **Status:** Retrabalho
+- **Status:** Aprovado
 
 | O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
 |---|---|---|
-| Teste de ida-e-volta de `erro` (serializar + desserializar) — **em retrabalho** | média | caminho de saída usado pela 05 fica sem teste; 3 linhas descobertas |
-| Teste de campo com tipo errado — **em retrabalho** | baixa | ramo defensivo de 1 linha sem cobertura direta |
-| Adicionar `pytest-cov` às dev-deps — **em retrabalho** | baixa | cobertura medida por `trace` manual a cada verificação |
-| `mypy src` (`main.py:52`) e `ruff check` (`main.py`, `imagens/get_images.py`) | baixa | pré-existentes desde a sprint 01; `main.py` é reescrita na sprint 06 |
+| Nenhum item de retrabalho do primeiro parecer em aberto | — | os 3 itens (round-trip de `erro`, campo com tipo errado, `pytest-cov` + gate) foram implementados nas fases 9–11 |
+| `main.py` em 0% de cobertura | baixa | `main.py` é reescrita e testada na sprint 06; o gate global de 80% segue atingido |
+| `ruff`/`mypy` pré-existentes em `main.py` e `docs/imagens/get_images.py` | baixa | pré-existentes desde a sprint 01; `main.py` é reescrita na sprint 06 |
+| Ancorar `Jogo.vencedor is None` enquanto o jogo corre (arrastado da sprint 03) | baixa | contrato documentado sem teste; protocolo (04) e TUI (06) trazem os seus |
 
-> **Próximo passo:** Retrabalho → `/pi-grill` sprint `04-protocolo` (3 itens acima); depois `/pi-atualizar` e `/pi-sprint-executar`.
+> **Próximo passo:** Aprovado → `LICOES.md` e avançar para a próxima sprint (`/pi-sprint-propor`, sprint 05 — Servidor). Retrabalho → `/pi-grill` sprint `04-protocolo`.

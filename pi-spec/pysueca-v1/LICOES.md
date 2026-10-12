@@ -87,3 +87,21 @@
 | `ruff`/`mypy` vermelhos em `main.py` e `imagens/get_images.py` | baixa | pré-existentes desde a sprint 01; `main.py` é reescrita na sprint 06 |
 
 **Evidências:** `pi-spec/pysueca-v1/execucao/04-protocolo/relatorio-verificacao.md`
+
+---
+
+## Sprint 04-protocolo — Re-verificação (retrabalho) — 2026-10-12
+
+**Aprendizado:** o retrabalho fechou os 3 itens do primeiro parecer num ciclo curto e sem mudar arquitetura: `campo_invalido` separou "tipo errado" de "ausente" com um RED genuíno, e o teste de ida-e-volta do `erro` levou `protocolo.py` a 100%. O `pytest-cov` + gate de 80% só ficou limpo junto do `git mv` das imagens para `docs/` — tirando `get_images.py` de dentro do pacote, `--cov=pysueca` deixa de medir um script sem teste. O gate global passou com folga (93,6%) mesmo com `main.py` em 0%.
+
+**O que muda nas próximas sprints:** a cobertura passa a ser medida por `uv run pytest --cov=pysueca --cov-fail-under=80` (documentado no `AGENTS.md`); qualquer módulo novo que derrube o pacote abaixo de 80% falha o gate — a TUI (06) precisa manter `main.py` coberto ao reescrevê-lo.
+
+**Retrabalho adiado:** nenhum desta re-verificação.
+
+| O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
+|---|---|---|
+| `__init__.py` em 50% de cobertura | baixa | linha de versão não exercitada; sem caminho de jogo |
+| `ruff`/`mypy` pré-existentes em `main.py` e `docs/imagens/get_images.py` | baixa | pré-existentes desde a sprint 01; `main.py` é reescrita na sprint 06 |
+| Ancorar `Jogo.vencedor is None` enquanto o jogo corre (arrastado da sprint 03) | baixa | contrato documentado sem teste; protocolo (04) e TUI (06) trazem os seus |
+
+**Evidências:** `pi-spec/pysueca-v1/execucao/04-protocolo/relatorio-verificacao.md`
