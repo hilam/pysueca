@@ -137,28 +137,28 @@
 
 ## 11. Retrabalho da verificação (RED → GREEN)
 
-- [ ] 11.1 Ampliar o teste `cima ou baixo responde` com o ramo `b` → `Responder(False)` (RED — Test: cima ou baixo responde)
-- [ ] 11.2 Nenhuma implementação nova: `RespostaScreen.action_baixo` já existe (GREEN; cobertura declarada)
-- [ ] 11.3 Commit: `test(06-cliente-tui): cima ou baixo responde com o baixo`
+- [x] 11.1 Ampliar o teste `cima ou baixo responde` com o ramo `b` → `Responder(False)` (RED — Test: cima ou baixo responde)
+- [x] 11.2 Nenhuma implementação nova: `RespostaScreen.action_baixo` já existe (GREEN; cobertura declarada)
+- [x] 11.3 Commit: `test(06-cliente-tui): cima ou baixo responde com o baixo`
 
-- [ ] 11.4 Teste `EDGE - o fim da conexão vira aviso` (RED) — o falso fecha a conexão e a tela avisa
-- [ ] 11.5 Nenhuma implementação nova: o `finally` do worker já avisa sob `is_running` (GREEN; cobertura declarada)
-- [ ] 11.6 Commit: `test(06-cliente-tui): o fim da conexão vira aviso`
+- [x] 11.4 Teste `EDGE - o fim da conexão vira aviso` (RED) — o falso fecha a conexão e a tela avisa
+- [x] 11.5 Nenhuma implementação nova: o `finally` do worker já avisa sob `is_running` (GREEN; cobertura declarada)
+- [x] 11.6 Commit: `test(06-cliente-tui): o fim da conexão vira aviso`
 
-- [ ] 11.7 Teste `EDGE - o teto do leitor vira aviso` (RED) — linha maior que `LIMITE_LEITURA`
-- [ ] 11.8 Nenhuma implementação nova: o `except (ValueError, LinhaLonga)` converge no `finally` (GREEN; cobertura declarada)
-- [ ] 11.9 Commit: `test(06-cliente-tui): o teto do leitor vira aviso`
+- [x] 11.7 Teste `EDGE - o teto do leitor vira aviso` (RED) — linha maior que `LIMITE_LEITURA`
+- [x] 11.8 Nenhuma implementação nova: o `except (ValueError, LinhaLonga)` converge no `finally` (GREEN; cobertura declarada)
+- [x] 11.9 Commit: `test(06-cliente-tui): o teto do leitor vira aviso`
 
-- [ ] 11.10 Teste `a mesa desenha a vaza vazia e a vaza cheia` (RED) — helper puro `desenhar_mesa`
-- [ ] 11.11 Nenhuma implementação nova (GREEN; cobertura declarada)
-- [ ] 11.12 Commit: `test(06-cliente-tui): a mesa desenha a vaza vazia e a vaza cheia`
+- [x] 11.10 Teste `a mesa desenha a vaza vazia e a vaza cheia` (RED) — helper puro `desenhar_mesa`
+- [x] 11.11 Nenhuma implementação nova (GREEN; cobertura declarada)
+- [x] 11.12 Commit: `test(06-cliente-tui): a mesa desenha a vaza vazia e a vaza cheia`
 
-- [ ] 11.13 Teste `os assentos contam os nomes com um assento vago no meio` (RED) — helper puro `desenhar_assentos`
-- [ ] 11.14 Nenhuma implementação nova (GREEN; cobertura declarada)
-- [ ] 11.15 Commit: `test(06-cliente-tui): os assentos contam os nomes com um assento vago no meio`
+- [x] 11.13 Teste `os assentos contam os nomes com um assento vago no meio` (RED) — helper puro `desenhar_assentos`
+- [x] 11.14 Nenhuma implementação nova (GREEN; cobertura declarada)
+- [x] 11.15 Commit: `test(06-cliente-tui): os assentos contam os nomes com um assento vago no meio`
 
-- [ ] 11.16 Ampliar `com a mão vazia nada é jogado`: `←`/`→` mantêm a seleção em 0 (RED)
-- [ ] 11.17 Nenhuma implementação nova: `action_selecionar` já guarda `not self.estado.mao` (GREEN; cobertura declarada)
-- [ ] 11.18 Commit: `test(06-cliente-tui): a seleção fica em 0 com a mão vazia`
+- [x] 11.16 Ampliar `com a mão vazia nada é jogado`: `←`/`→` mantêm a seleção em 0 (RED)
+- [x] 11.17 Nenhuma implementação nova: `action_selecionar` já guarda `not self.estado.mao` (GREEN; cobertura declarada)
+- [x] 11.18 Commit: `test(06-cliente-tui): a seleção fica em 0 com a mão vazia`
 
-- [ ] 11.19 Rodar a suite completa e o gate de cobertura (`uv run pytest --cov=pysueca --cov-fail-under=80`)
+- [x] 11.19 Rodar a suite completa e o gate de cobertura (`uv run pytest --cov=pysueca --cov-fail-under=80`)
