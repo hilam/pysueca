@@ -4,7 +4,7 @@ import random
 
 from pysueca.baralho import Baralho
 from pysueca.carta import Carta, Naipe, Valor
-from pysueca.motor import ErroJogada, Mao, Vaza
+from pysueca.motor import ErroJogada, Mao, Resultado, Vaza
 
 
 def test_trunfo_vence_o_naipe_puxado() -> None:
@@ -152,3 +152,23 @@ def test_mao_completa_sao_10_vazas_e_esvazia_as_maos() -> None:
 
     assert len(mao.vazas) == 10
     assert all(not maos for maos in mao.maos)
+
+
+def test_pontuacao_da_mao_jogada() -> None:
+    mao = Mao(0, random.Random(7))
+    mao.preparar()
+    rng = random.Random(0)
+
+    while any(mao.maos):
+        assento = mao.vez
+        legais = mao.maos[assento]
+        if mao.vaza is not None:
+            do_naipe = [c for c in legais if c.naipe is mao.vaza.naipe_puxado]
+            if do_naipe:
+                legais = do_naipe
+        assert mao.jogar(assento, rng.choice(legais)) is None
+
+    assert mao.pontos == (88, 32)
+    assert sum(mao.pontos) == 120
+    assert mao.resultado is Resultado.de_pontos(88, 32)
+    assert mao.resultado is Resultado.NORMAL
