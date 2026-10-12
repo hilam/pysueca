@@ -54,6 +54,9 @@ class Servidor:
                 elif isinstance(mensagem, (Jogar, Responder)):
                     if assento is None:
                         await self._enviar(escritor, Erro("nao_sentado"))
+                    elif isinstance(mensagem, Responder):
+                        self.jogo.preparar(mensagem.cima)
+                        await self._transmitir()
                 elif isinstance(mensagem, (Estado, Erro)):
                     await self._enviar(escritor, Erro("mensagem_invalida"))
         finally:
