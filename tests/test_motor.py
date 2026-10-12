@@ -201,3 +201,31 @@ def test_carta_fora_da_mao_devolve_erro() -> None:
     carta_de_outro = mao.maos[1][0]
     assert mao.jogar(0, carta_de_outro) is ErroJogada.CARTA_FORA_DA_MAO
     assert carta_de_outro in mao.maos[1]
+
+
+def _snapshot(mao: Mao) -> tuple:
+    vaza = None
+    if mao.vaza is not None:
+        vaza = (mao.vaza.naipe_puxado, mao.vaza.trunfo, list(mao.vaza.jogadas))
+    return (mao.vez, [list(maos) for maos in mao.maos], vaza)
+
+
+def test_jogada_ilegal_nao_altera_o_estado() -> None:
+    mao = Mao(0, random.Random(1))
+    mao.preparar()
+
+    rei_de_copas = Carta(Naipe.COPAS, Valor.REI)
+    as_de_copas = Carta(Naipe.COPAS, Valor.AS)
+    as_de_paus = Carta(Naipe.PAUS, Valor.AS)
+    mao.maos[0] = [rei_de_copas]
+    mao.maos[1] = [as_de_copas, as_de_paus]
+    mao.trunfo = Naipe.OUROS
+    mao.vez = 0
+    assert mao.jogar(0, rei_de_copas) is None
+
+    antes = _snapshot(mao)
+    assert mao.jogar(2, as_de_paus) is ErroJogada.FORA_DA_VEZ
+    assert _snapshot(mao) == antes
+
+    assert mao.jogar(1, as_de_paus) is ErroJogada.NAO_SEGUIU_NAIPE
+    assert _snapshot(mao) == antes
