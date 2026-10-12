@@ -235,7 +235,7 @@ class SuecaApp(App[None]):
 
     async def action_jogar(self) -> None:
         """Manda a carta selecionada; quem decide se a jogada vale é o servidor."""
-        if not self.estado or not self.estado.mao:
+        if not self.estado or not self.estado.mao or self.estado.encerrado:
             return
         await self.enviar(Jogar(Carta.de_texto(self.estado.mao[self.selecao])))
 
