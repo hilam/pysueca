@@ -462,6 +462,16 @@ def test_o_fim_da_conexao_vira_aviso() -> None:
     rodar("Ana", cenario)
 
 
+def test_o_teto_do_leitor_vira_aviso() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar_cru(b"x" * 70000 + b"\n")
+        await aguardar(pilot, lambda: "Conexão encerrada" in painel(app, "#aviso"))
+        assert "Conexão encerrada" in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
+
+
 def test_o_cliente_se_reconhece_pelo_nome() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
