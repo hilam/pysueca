@@ -207,6 +207,7 @@ class SuecaApp(App[None]):
         self.query_one("#assentos", Static).update(desenhar_assentos(estado))
         self.query_one("#mesa", Static).update(desenhar_mesa(estado))
         self.query_one("#mao", Static).update(desenhar_mao(estado.mao, self.selecao))
+        self.desenhar_aviso()
         self._sincronizar_pergunta()
 
     def _sincronizar_pergunta(self) -> None:
@@ -227,7 +228,32 @@ class SuecaApp(App[None]):
     def avisar(self, motivo: str) -> None:
         """Guarda o aviso de erro até o próximo snapshot."""
         self.aviso_erro = motivo
-        self.query_one("#aviso", Static).update(motivo)
+        self.desenhar_aviso()
+
+    def texto_aviso(self) -> str:
+        """O aviso da vez, com a prioridade queda > erro > vez > conexão."""
+        estado = self.estado
+        partes = []
+        if estado is not None and estado.ausentes:
+            nomes = [
+                estado.assentos[assento] or f"assento {assento}"
+                for assento in estado.ausentes
+            ]
+            partes.append(f"Mesa congelada — caído: {', '.join(nomes)}")
+        if self.aviso_erro:
+            partes.append(self.aviso_erro)
+        if estado is not None and estado.vez is not None:
+            if estado.vez == self.meu_assento:
+                partes.append("Sua vez")
+            else:
+                partes.append(f"Vez de {estado.assentos[estado.vez] or '?'}")
+        if not partes:
+            return "Conectando..." if estado is None else ""
+        return " | ".join(partes)
+
+    def desenhar_aviso(self) -> None:
+        """Redesenha o painel de aviso a partir do estado corrente."""
+        self.query_one("#aviso", Static).update(self.texto_aviso())
 
 
 def analisar(argv: list[str] | None = None) -> argparse.Namespace:
