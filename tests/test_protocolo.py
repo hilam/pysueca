@@ -110,6 +110,12 @@ def test_estado_faz_ida_e_volta() -> None:
     assert desserializar(serializar(snap)) == snap
 
 
+def test_erro_faz_ida_e_volta() -> None:
+    erro = erro_de_jogada(ErroJogada.FORA_DA_VEZ)
+
+    assert desserializar(serializar(erro)) == Erro("fora_da_vez")
+
+
 def test_snapshot_traz_so_a_contagem_das_outras_maos() -> None:
     jogo = Jogo(random.Random(7), embaralhador=0)
     jogo.preparar(cima=True)
