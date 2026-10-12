@@ -10,7 +10,7 @@ from typing import Any, AsyncIterator, Awaitable, Callable
 import pytest
 from textual.widgets import Static
 
-from pysueca.main import SuecaApp
+from pysueca.main import SuecaApp, desenhar_carta
 from pysueca.protocolo import (
     Entrar,
     Estado,
@@ -123,3 +123,10 @@ def test_tela_de_espera_mostra_n_de_4_assentos() -> None:
             await asyncio.wait_for(falso.recebidas.get(), 0.1)
 
     rodar("Ana", cenario)
+
+
+def test_a_mao_desenha_as_cartas_com_o_naipe_colorido() -> None:
+    assert desenhar_carta("7H") == "[red]7♥[/red]"
+    assert desenhar_carta("AD") == "[red]A♦[/red]"
+    assert desenhar_carta("7C") == "7♣"
+    assert desenhar_carta("AS") == "A♠"
