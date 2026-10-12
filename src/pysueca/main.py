@@ -34,6 +34,32 @@ LIMITE_LEITURA = 65536
 SIMBOLOS = {Naipe.PAUS: "♣", Naipe.COPAS: "♥", Naipe.ESPADAS: "♠", Naipe.OUROS: "♦"}
 VERMELHOS = frozenset({Naipe.COPAS, Naipe.OUROS})
 
+# todo código de motivo do v1 (motor, servidor e forma do fio) em frase de jogador
+MOTIVOS = {
+    "fora_da_vez": "Não é a sua vez",
+    "carta_fora_da_mao": "Essa carta não está na sua mão",
+    "nao_seguiu_naipe": "Você precisa seguir o naipe puxado",
+    "mensagem_invalida": "A mesa não entendeu a mensagem",
+    "nome_em_uso": "Esse nome já está em uso nesta mesa",
+    "mesa_cheia": "A mesa já tem quatro jogadores",
+    "nao_sentado": "Você ainda não está sentado nesta mesa",
+    "mesa_congelada": "A mesa está congelada: a jogada não valeu",
+    "mesa_incompleta": "A mesa ainda não tem quatro jogadores",
+    "fora_de_hora": "A mesa não esperava essa jogada agora",
+    "json_invalido": "A mesa mandou uma mensagem que não deu para ler",
+    "tipo_desconhecido": "A mesa mandou uma mensagem de tipo desconhecido",
+    "campo_extra": "A mensagem da mesa trouxe um campo a mais",
+    "campo_faltando": "A mensagem da mesa veio sem um campo",
+    "campo_invalido": "A mensagem da mesa trouxe um valor inválido",
+    "nome_invalido": "Esse nome não serve: use de 1 a 20 caracteres",
+}
+RECUSA_GENERICA = "A mesa recusou o pedido"
+
+
+def frase_do_motivo(motivo: str) -> str:
+    """O motivo de recusa do fio em frase de jogador; motivo novo cai no genérico."""
+    return MOTIVOS.get(motivo, RECUSA_GENERICA)
+
 
 def desenhar_carta(texto: str, destaque: bool = False) -> str:
     """A carta em markup do Textual, com copas e ouros em vermelho."""
@@ -186,7 +212,8 @@ class SuecaApp(App[None]):
         if isinstance(mensagem, Estado):
             self.mostrar_estado(mensagem)
         elif isinstance(mensagem, Erro):
-            self.avisar(mensagem.motivo)
+            # o código do fio morre aqui: daqui para a tela só desce frase de jogador
+            self.avisar(frase_do_motivo(mensagem.motivo))
 
     def action_selecionar(self, delta: int) -> None:
         """Move a seleção dentro da mão, sem passar dos limites."""
