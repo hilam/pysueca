@@ -336,6 +336,14 @@ def test_cima_ou_baixo_responde() -> None:
         assert await falso.proxima() == Responder(True)
         await aguardar(pilot, lambda: not isinstance(app.screen, RespostaScreen))
         assert not isinstance(app.screen, RespostaScreen)
+        await falso.enviar(
+            Estado(assentos=["Bia", "Ana", "Caio", "Duda"], mao=[], respondente=1)
+        )
+        await aguardar(pilot, lambda: isinstance(app.screen, RespostaScreen))
+        await pilot.press("b")
+        assert await falso.proxima() == Responder(False)
+        await aguardar(pilot, lambda: not isinstance(app.screen, RespostaScreen))
+        assert not isinstance(app.screen, RespostaScreen)
 
     rodar("Ana", cenario)
 
