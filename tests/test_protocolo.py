@@ -37,3 +37,7 @@ def test_tipo_desconhecido_vira_erro() -> None:
 def test_campo_faltando_vira_erro() -> None:
     for linha in (b'{"tipo": "jogar"}', b'{"tipo": "entrar"}', b'{"tipo": "responder"}'):
         assert desserializar(linha) == Erro("campo_faltando")
+
+
+def test_nome_e_normalizado() -> None:
+    assert desserializar(b'{"tipo": "entrar", "nome": "  Ana  "}') == Entrar("Ana")
