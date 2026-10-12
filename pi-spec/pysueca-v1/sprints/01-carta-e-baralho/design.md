@@ -41,7 +41,7 @@ Critério: a regra "trunfo > naipe puxado > descarte" é aritmética de carta �
 Critério: testes precisam de cenário concreto ("o assento 2 ficou com o Ás de trunfo"), não só invariantes; e o `random` global é estado mutável compartilhado entre testes. Assinatura: `Baralho(rng: random.Random | None = None)`, criando `random.Random()` quando `None`. Alternativa rejeitada: `random.seed()` global no teste — vaza para toda a sessão de pytest.
 
 **6. Texto `"7H"` (fio) ≠ render `A♥` (tela).**
-Critério: o protocolo (sprint 04) precisa de um formato estável que caiba numa linha JSON; o símbolo colorido é decisão de UI (`docs/adr/0004`, sprint 06). `Carta.de_texto`/`texto()` ficam no formato de fio; a TUI formata o símbolo a partir do `Naipe`/`Valor`.
+Critério: o protocolo (sprint 04) precisa de um formato estável que caiba numa linha JSON; o símbolo colorido é decisão de UI (`docs/adr/0004`, sprint 06). `Carta.de_texto`/`texto()` ficam no formato de fio; a TUI formata o símbolo a partir do `Naipe`/`Valor`. Sem `Carta.__str__`: `texto()` é o único renderizador de fio, e não há dunder de formatação a manter.
 
 **7. `AGENTS.md` gerado nesta sprint como task de documentação.**
 Critério: é o entregável do PLANO e as sprints 02+ dependem de comandos e invariantes documentados. Não vira capability nem spec: testar prosa é teste frágil e a conferência é humana. Conteúdo: `uv run`, mapa de arquivos, as invariantes "motor puro e síncrono" e "só Textual", ponteiro para `docs/adr/`.

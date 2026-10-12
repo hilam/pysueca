@@ -105,8 +105,17 @@ Task sem `### Test:` — documentação não é capability; a verificação é a
 - [x] 6.3 Suite completa uma última vez: `uv run pytest`
 - [x] 6.4 Commit de ajustes finais: `style: aplica lint e formatação`
 
+## 7. Retrabalho (verificação)
+
+- [ ] 7.1 Remover `Carta.__str__` de `src/pysueca/carta.py` (sem contrato em spec nem consumidor)
+- [ ] 7.2 Commit: `refactor(01-carta-e-baralho): remove Carta.__str__ sem consumidor`
+- [ ] 7.3 Teste do caso limite `EDGE - Texto de tamanho errado rejeitado` (RED; o guard já existe, então tende a verde — registrar como cobertura)
+- [ ] 7.4 Commit: `test(01-carta-e-baralho): cobre texto de tamanho errado`
+- [ ] 7.5 Suite completa e cobertura dos módulos da sprint: `uv run pytest` e `uv run --with pytest-cov pytest --cov=pysueca.carta --cov=pysueca.baralho`
+
 ## Notas de Execução
 
+- Retrabalho pós-verificação (fase 7): `Carta.__str__` removido por YAGNI e coberto o EDGE de tamanho errado em `de_texto`; resolve os dois gaps de cobertura do relatório.
 - 2.8, 2.11, 2.17, 2.20: `carta.py` já nasceu com `pontos`, `forca` e `de_texto`/`texto`; esses testes entraram como cobertura (suite verde, sem código novo). RED genuíno em 2.1, 2.4, 2.22 e 2.28.
 - 5.1–5.3: refatoração = anotação de `Valor._pontos`/`_forca` e `Self` em `__new__` para o mypy; tabela de valores única, sem duplicar `pontos`/`forca`.
 - 6.4: nenhum ajuste de `ruff format` foi necessário (`ruff format --check` limpo nos arquivos da sprint).

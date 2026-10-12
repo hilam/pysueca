@@ -44,6 +44,10 @@ O motor SHALL converter carta de e para texto no formato `<valor><naipe>`, com v
 - **WHEN** se converte o texto `"7X"` (naipe inexistente)
 - **THEN** a conversão falha com `ValueError`
 
+#### Scenario: texto de tamanho errado rejeitado
+- **WHEN** se converte um texto com tamanho diferente de 2 (`"7HH"`, `"7"` ou `""`)
+- **THEN** a conversão falha com `ValueError`
+
 ### Requirement: Desempate de duas cartas na vaza
 O motor SHALL decidir qual de duas cartas vence, dada a vaza por `(outra, naipe_puxado, trunfo)`: uma carta de trunfo vence qualquer carta que não seja de trunfo; sem trunfo na disputa, uma carta do naipe puxado vence qualquer carta de outro naipe (descarte); e, entre cartas do mesmo naipe, MUST vencer a de maior força.
 

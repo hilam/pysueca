@@ -52,6 +52,12 @@
 - **WHEN** se chama `Carta.de_texto("7X")`
 - **THEN** levanta `ValueError`
 
+### Test: EDGE - Texto de tamanho errado rejeitado
+**Traces**: `sprints/01-carta-e-baralho/specs/carta/spec.md` → Requirement: Texto ida-e-volta (edge case) — EDGE
+- **GIVEN** os textos `"7HH"`, `"7"` e `""`
+- **WHEN** `Carta.de_texto` é chamado com cada um
+- **THEN** cada chamada levanta `ValueError`
+
 ### Test: Ás de trunfo vence qualquer carta
 **Traces**: `sprints/01-carta-e-baralho/specs/carta/spec.md` → Requirement: Desempate de duas cartas na vaza — CRITICAL
 - **GIVEN** o Ás de copas com copas como trunfo, um naipe puxado e as outras 39 cartas
@@ -123,6 +129,7 @@
 ## Casos Limite
 
 - `Carta.de_texto` com naipe inválido (`"7X"`) e valor inválido (`"1H"`) → `ValueError`.
+- `Carta.de_texto` com tamanho diferente de 2 (`"7HH"`, `"7"`, `""`) → `ValueError`; sem o guard, `"7HH"` seria aceito em silêncio.
 - Valores de 0 ponto (Seis a Dois) mantêm força decrescente.
 - `Baralho()` sem RNG não usa o módulo `random` global — com `random.shuffle`/`random.randrange` monkeypatchados para explodir, `embaralhar()` funciona.
 - Descarte de força maior perde para o naipe puxado.
