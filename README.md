@@ -78,4 +78,43 @@ uv run pysueca Caio
 uv run pysueca Duda
 ```
 
-A ordem de conexão define os assentos 0 a 3 e, portanto, as duplas (0, 2) e (1, 3). Para apontar para outra máquina, use `--host` e `--porta`; os defaults são `127.0.0.1:8765`.
+A ordem de conexão define os assentos 0 a 3 e, portanto, as duplas (0, 2) e (1, 3). Os defaults são `127.0.0.1:8765`; `--host` e `--porta` valem para os dois lados.
+
+#### Duas máquinas
+
+Na máquina da mesa, descubra o endereço dela na rede local:
+
+```bash
+hostname -I                  # Linux: o primeiro endereço é o da rede local
+ipconfig getifaddr en0       # macOS
+ipconfig                     # Windows: procure o "Endereço IPv4"
+```
+
+Suba o servidor aceitando conexão de fora (o `0.0.0.0` escuta em todas as interfaces; sem ele o bind é `127.0.0.1` e só a própria máquina conecta):
+
+```bash
+uv run pysueca-servidor --host 0.0.0.0
+```
+
+Em cada máquina, sente dois jogadores apontando para o endereço descoberto — troque `192.168.0.10` por ele:
+
+```bash
+uv run pysueca Ana --host 192.168.0.10
+uv run pysueca Caio --host 192.168.0.10
+```
+
+```bash
+uv run pysueca Bia --host 192.168.0.10
+uv run pysueca Duda --host 192.168.0.10
+```
+
+O firewall da máquina da mesa pode bloquear a porta 8765: libere o `pysueca-servidor` na rede local ou a porta TCP de entrada.
+
+#### O que o v1 entrega
+
+- quatro jogadores em mesa, cada um no seu cliente Textual, na mesma máquina ou em duas;
+- uma série até 4 partidas por mesa — bandeira vale 4 e encerra na hora, e as duplas são (0, 2) e (1, 3);
+- uma mesa por servidor: mesa nova é reiniciar o servidor;
+- a queda de um jogador congela a mesa e a reconexão com o mesmo nome traz o jogador de volta.
+
+Fica fora do v1: recomeçar a série sem reiniciar o servidor, autenticação, TLS, mais de uma mesa por servidor e modo imagem.
