@@ -79,6 +79,10 @@ def test_campo_extra_vira_erro() -> None:
     )
 
 
+def test_campo_com_tipo_errado_vira_erro() -> None:
+    assert desserializar(b'{"tipo": "jogar", "carta": 7}') == Erro("campo_invalido")
+
+
 def test_linha_acima_do_teto_e_fatal() -> None:
     with pytest.raises(LinhaLonga):
         desserializar(_linha_de_tamanho(TETO_LINHA + 1))
