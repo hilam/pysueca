@@ -95,3 +95,11 @@ def test_snapshot_traz_a_propria_mao() -> None:
     snap = estado(jogo, ["Ana", "Bia", "Caio", "Dora"], assento=2)
 
     assert snap.mao == [carta.texto() for carta in jogo.mao.maos[2]]
+
+
+def test_estado_faz_ida_e_volta() -> None:
+    jogo = Jogo(random.Random(7), embaralhador=0)
+    jogo.preparar(cima=True)
+    snap = estado(jogo, ["Ana", "Bia", "Caio", "Dora"], assento=2)
+
+    assert desserializar(serializar(snap)) == snap
