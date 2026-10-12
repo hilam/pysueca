@@ -58,3 +58,11 @@ def test_quilo_soma_duas_partidas_a_dupla_1() -> None:
 
     assert jogo.encerrar_mao() is Resultado.QUILO
     assert jogo.partidas == [0, 2]
+
+
+def test_empate_nao_da_partida_a_ninguem() -> None:
+    jogo = Jogo(random.Random(1), embaralhador=0)
+    jogo.mao = _MaoDePlacar((60, 60))
+
+    assert jogo.encerrar_mao() is Resultado.EMPATE
+    assert jogo.partidas == [0, 0]
