@@ -115,9 +115,9 @@ async def mesa_pronta(
 async def jogar_a_mao(
     conexoes: list[tuple[asyncio.StreamReader, asyncio.StreamWriter]],
     snapshots: list[Estado],
+    rng: random.Random,
 ) -> list[Estado]:
     """Os quatro robôs jogam as 40 cartas; devolve o snapshot depois da décima vaza."""
-    rng = random.Random(7)
     for _ in range(40):
         vez = snapshots[0].vez
         assert vez is not None
@@ -127,6 +127,23 @@ async def jogar_a_mao(
         await enviar(conexoes[vez][1], Jogar(rng.choice(legais)))
         snapshots = [await receber_estado(leitor) for leitor, _ in conexoes]
     return snapshots
+
+
+async def jogar_a_serie(
+    conexoes: list[tuple[asyncio.StreamReader, asyncio.StreamWriter]],
+    snapshots: list[Estado],
+) -> list[Estado]:
+    """Os robôs jogam mão após mão, respondendo cima a cada mão nova, até o jogo encerrar."""
+    rng = random.Random(7)
+    for _ in range(30):
+        snapshots = await jogar_a_mao(conexoes, snapshots, rng)
+        if snapshots[0].encerrado:
+            return snapshots
+        respondente = snapshots[0].respondente
+        assert respondente is not None
+        await enviar(conexoes[respondente][1], Responder(True))
+        snapshots = [await receber_estado(leitor) for leitor, _ in conexoes]
+    raise AssertionError("o jogo não encerrou em 30 mãos")
 
 
 def test_entrar_senta_no_primeiro_assento_livre() -> None:
@@ -324,7 +341,7 @@ def test_a_decima_vaza_conta_a_mao() -> None:
             conexoes, snapshots = await mesa_pronta(porta)
             contada = servidor.jogo.mao
 
-            snapshots = await jogar_a_mao(conexoes, snapshots)
+            snapshots = await jogar_a_mao(conexoes, snapshots, random.Random(7))
 
             assert sum(contada.pontos) == 120
             pontos = contada.pontos
@@ -347,11 +364,33 @@ def test_mao_nova_volta_a_perguntar_cima_ou_baixo() -> None:
             conexoes, snapshots = await mesa_pronta(porta)
             assert snapshots[0].trunfo is not None
 
-            snapshots = await jogar_a_mao(conexoes, snapshots)
+            snapshots = await jogar_a_mao(conexoes, snapshots, random.Random(7))
 
             assert snapshots[0].encerrado is False
             assert snapshots[0].trunfo is None
             assert snapshots[0].respondente == 2
+            await fechar(*conexoes)
+
+    asyncio.run(cenario())
+
+
+def test_o_jogo_encerrado_nao_abre_mao_nova() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            conexoes, snapshots = await mesa_pronta(porta)
+
+            snapshots = await jogar_a_serie(conexoes, snapshots)
+
+            final = snapshots[0]
+            assert final.encerrado is True
+            assert final.vencedor == final.partidas.index(max(final.partidas))
+            assert max(final.partidas) >= 4
+            for snapshot in snapshots:
+                assert snapshot.mao == []
+                assert snapshot.contagens == [0, 0, 0, 0]
+
+            await enviar(conexoes[0][1], Entrar("Ana"))
+            assert isinstance(await receber(conexoes[0][0]), Erro)
             await fechar(*conexoes)
 
     asyncio.run(cenario())
