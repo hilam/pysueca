@@ -11,7 +11,7 @@ import pytest
 from textual.widgets import Static
 
 from pysueca.carta import Carta
-from pysueca.main import SuecaApp, desenhar_carta
+from pysueca.main import RespostaScreen, SuecaApp, desenhar_carta
 from pysueca.protocolo import (
     Entrar,
     Erro,
@@ -289,5 +289,17 @@ def test_com_a_mao_vazia_nada_e_jogado() -> None:
         await pilot.press("enter")
         with pytest.raises(TimeoutError):
             await asyncio.wait_for(falso.recebidas.get(), 0.1)
+
+    rodar("Ana", cenario)
+
+
+def test_cima_ou_baixo_abre_na_tela_do_respondente() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(assentos=["Bia", "Ana", "Caio", "Duda"], mao=[], respondente=1)
+        )
+        await aguardar(pilot, lambda: isinstance(app.screen, RespostaScreen))
+        assert isinstance(app.screen, RespostaScreen)
 
     rodar("Ana", cenario)
