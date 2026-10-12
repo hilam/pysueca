@@ -443,3 +443,23 @@ def test_o_cliente_se_reconhece_pelo_nome() -> None:
         assert "Sua vez" in painel(app, "#aviso")
 
     rodar("Ana", cenario)
+
+
+def test_congelado_o_cliente_ainda_manda_e_o_servidor_recusa() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H", "AC"],
+                ausentes=[2],
+            )
+        )
+        await aguardar(pilot, lambda: "congelada" in painel(app, "#aviso"))
+        await pilot.press("enter")
+        assert await falso.proxima() == Jogar(Carta.de_texto("7H"))
+        await falso.enviar(Erro("mesa_congelada"))
+        await aguardar(pilot, lambda: "mesa_congelada" in painel(app, "#aviso"))
+        assert "mesa_congelada" in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
