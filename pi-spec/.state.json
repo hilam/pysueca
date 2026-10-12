@@ -1,11 +1,11 @@
 {
   "iniciativa": "pysueca-v1",
-  "fase": "sprints",
+  "fase": "sprint-implementacao",
   "plano": {
     "status": "aprovado"
   },
   "atual": {
-    "sprint": "06-cliente-tui"
+    "sprint": "07-polimento"
   },
   "sprints": {
     "01-carta-e-baralho": "concluida",
@@ -13,6 +13,7 @@
     "03-jogo-e-papeis": "concluida",
     "04-protocolo": "concluida",
     "05-servidor": "concluida",
-    "06-cliente-tui": "concluida"
+    "06-cliente-tui": "concluida",
+    "07-polimento": "proposta"
   }
 }
