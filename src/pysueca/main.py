@@ -190,7 +190,7 @@ class SuecaApp(App[None]):
         if not self.estado or not self.estado.mao:
             return
         self.selecao = max(0, min(self.selecao + delta, len(self.estado.mao) - 1))
-        self.query_one("#mao", Static).update(desenhar_mao(self.estado.mao, self.selecao))
+        self.desenhar_mao_painel()
 
     async def action_jogar(self) -> None:
         """Manda a carta selecionada; quem decide se a jogada vale é o servidor."""
@@ -204,11 +204,24 @@ class SuecaApp(App[None]):
             self.selecao = 0
         self.estado = estado
         self.aviso_erro = None
+        self.desenhar_tela()
+
+    def desenhar_tela(self) -> None:
+        """Redesenha todos os painéis a partir do estado corrente."""
+        estado = self.estado
+        assert estado is not None
         self.query_one("#assentos", Static).update(desenhar_assentos(estado))
         self.query_one("#mesa", Static).update(desenhar_mesa(estado))
-        self.query_one("#mao", Static).update(desenhar_mao(estado.mao, self.selecao))
+        self.desenhar_mao_painel()
         self.desenhar_aviso()
         self._sincronizar_pergunta()
+
+    def desenhar_mao_painel(self) -> None:
+        """Redesenha a mão com a seleção corrente."""
+        if self.estado is not None:
+            self.query_one("#mao", Static).update(
+                desenhar_mao(self.estado.mao, self.selecao)
+            )
 
     def _sincronizar_pergunta(self) -> None:
         """Abre o cima ou baixo só para o respondente e fecha quando a pergunta passa."""
