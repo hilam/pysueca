@@ -296,7 +296,7 @@ class SuecaApp(App[None]):
             partes.append(f"Mesa congelada — caído: {', '.join(nomes)}")
         if self.aviso_erro:
             partes.append(self.aviso_erro)
-        if estado is not None and estado.vez is not None:
+        if estado is not None and estado.vez is not None and not estado.encerrado:
             if estado.vez == self.meu_assento:
                 partes.append("Sua vez")
             else:
