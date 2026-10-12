@@ -136,3 +136,14 @@ def test_snapshot_reflete_a_mesa() -> None:
     assert snap.vaza == [(0, carta.texto())]
     assert snap.partidas == [2, 0]
     assert snap.encerrado is False
+
+
+def test_snapshot_diz_quem_deve_responder() -> None:
+    jogo = Jogo(random.Random(7), embaralhador=0)
+
+    pendente = estado(jogo, ["Ana", "Bia", "Caio", "Dora"], assento=2)
+    assert pendente.respondente == 1
+
+    jogo.preparar(cima=True)
+    respondida = estado(jogo, ["Ana", "Bia", "Caio", "Dora"], assento=2)
+    assert respondida.respondente is None
