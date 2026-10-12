@@ -720,6 +720,11 @@ def test_d_alterna_o_tema() -> None:
     rodar("Ana", cenario)
 
 
+def test_o_tema_nao_muda_a_cor_do_naipe() -> None:
+    assert desenhar_carta("7H") == "[red]7♥[/red]"
+    assert desenhar_carta("AD") == "[red]A♦[/red]"
+
+
 def test_o_cliente_le_nome_host_e_porta() -> None:
     args = analisar(["Ana", "--host", "10.0.0.2", "--porta", "9000"])
     assert args.nome == "Ana"
