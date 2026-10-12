@@ -1,9 +1,11 @@
 """Testes do servidor — assentos, intenções e broadcast (sprint 05)."""
 
 import asyncio
+import random
 from contextlib import asynccontextmanager
 
 from pysueca.carta import Carta
+from pysueca.motor import Resultado, jogada_legal
 from pysueca.protocolo import (
     Entrar,
     Erro,
@@ -41,6 +43,13 @@ async def receber(leitor: asyncio.StreamReader) -> Mensagem:
     """A próxima mensagem da conexão, com timeout curto."""
     linha = await asyncio.wait_for(leitor.readline(), TIMEOUT)
     return desserializar(linha)
+
+
+async def receber_estado(leitor: asyncio.StreamReader) -> Estado:
+    """O próximo snapshot da conexão."""
+    mensagem = await receber(leitor)
+    assert isinstance(mensagem, Estado)
+    return mensagem
 
 
 async def sentar(porta: int, nome: str) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
@@ -101,6 +110,23 @@ async def mesa_pronta(
     await enviar(conexoes[respondente][1], Responder(True))
     snapshots = [await drenar(leitor) for leitor, _ in conexoes]
     return conexoes, snapshots
+
+
+async def jogar_a_mao(
+    conexoes: list[tuple[asyncio.StreamReader, asyncio.StreamWriter]],
+    snapshots: list[Estado],
+) -> list[Estado]:
+    """Os quatro robôs jogam as 40 cartas; devolve o snapshot depois da décima vaza."""
+    rng = random.Random(7)
+    for _ in range(40):
+        vez = snapshots[0].vez
+        assert vez is not None
+        mao = [Carta.de_texto(texto) for texto in snapshots[vez].mao]
+        puxado = Carta.de_texto(snapshots[0].vaza[0][1]).naipe if snapshots[0].vaza else None
+        legais = [carta for carta in mao if puxado is None or jogada_legal(mao, puxado, carta)]
+        await enviar(conexoes[vez][1], Jogar(rng.choice(legais)))
+        snapshots = [await receber_estado(leitor) for leitor, _ in conexoes]
+    return snapshots
 
 
 def test_entrar_senta_no_primeiro_assento_livre() -> None:
@@ -287,6 +313,29 @@ def test_jogada_legal_chega_aos_quatro() -> None:
                 assert len(snapshot.mao) == (9 if assento == vez else 10)
                 assert snapshot.contagens == [10 if i != vez else 9 for i in range(4)]
                 assert snapshot.vez == (vez + 1) % 4
+            await fechar(*conexoes)
+
+    asyncio.run(cenario())
+
+
+def test_a_decima_vaza_conta_a_mao() -> None:
+    async def cenario() -> None:
+        async with mesa() as (servidor, porta):
+            conexoes, snapshots = await mesa_pronta(porta)
+            contada = servidor.jogo.mao
+
+            snapshots = await jogar_a_mao(conexoes, snapshots)
+
+            assert sum(contada.pontos) == 120
+            pontos = contada.pontos
+            resultado = contada.resultado
+            esperado = [0, 0]
+            if resultado is not Resultado.EMPATE:
+                esperado[0 if pontos[0] > pontos[1] else 1] = resultado.partidas
+            assert snapshots[0].partidas == esperado
+            for snapshot in snapshots:
+                assert snapshot.mao == []
+                assert snapshot.contagens == [0, 0, 0, 0]
             await fechar(*conexoes)
 
     asyncio.run(cenario())
