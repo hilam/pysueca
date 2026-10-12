@@ -339,3 +339,19 @@ def test_a_decima_vaza_conta_a_mao() -> None:
             await fechar(*conexoes)
 
     asyncio.run(cenario())
+
+
+def test_mao_nova_volta_a_perguntar_cima_ou_baixo() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            conexoes, snapshots = await mesa_pronta(porta)
+            assert snapshots[0].trunfo is not None
+
+            snapshots = await jogar_a_mao(conexoes, snapshots)
+
+            assert snapshots[0].encerrado is False
+            assert snapshots[0].trunfo is None
+            assert snapshots[0].respondente == 2
+            await fechar(*conexoes)
+
+    asyncio.run(cenario())
