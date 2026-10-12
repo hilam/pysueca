@@ -82,8 +82,13 @@ class Carta:
         return cls(naipe, valor)
 
     def vence(self, outra: Carta, naipe_puxado: Naipe, trunfo: Naipe) -> bool:
-        if self.naipe is trunfo:
-            return outra.naipe is not trunfo or self.forca > outra.forca
-        if outra.naipe is trunfo:
-            return False
-        return self.forca > outra.forca
+        """Trunfo > naipe puxado > descarte; dentro do naipe, vence a maior força."""
+
+        def peso(carta: Carta) -> tuple[int, int]:
+            if carta.naipe is trunfo:
+                return (2, carta.forca)
+            if carta.naipe is naipe_puxado:
+                return (1, carta.forca)
+            return (0, carta.forca)
+
+        return peso(self) > peso(outra)
