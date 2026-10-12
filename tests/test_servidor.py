@@ -501,3 +501,37 @@ def test_linha_acima_do_teto_fecha_aquela_conexao() -> None:
             await fechar(*restantes)
 
     asyncio.run(cenario())
+
+
+def test_os_outros_tres_seguem_na_mesa() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            conexoes, snapshots = await mesa_pronta(porta)
+            caido = 1
+            conexoes[caido][1].write(b" " * (TETO_LINHA + 100))
+            await conexoes[caido][1].drain()
+            conexoes[caido][1].close()
+            await conexoes[caido][1].wait_closed()
+
+            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            for leitor, _ in restantes:
+                assert (await receber_estado(leitor)).ausentes == [caido]
+
+            nova = await sentar(porta, "Bia")
+            conexoes2 = [*conexoes]
+            conexoes2[caido] = nova
+            atual = [await receber_estado(leitor) for leitor, _ in conexoes2]
+
+            assert atual[caido].ausentes == []
+            assert atual[0].vez == snapshots[0].vez
+            assert atual[0].contagens == snapshots[0].contagens
+
+            vez = atual[0].vez
+            assert vez is not None
+            carta = atual[vez].mao[0]
+            await enviar(conexoes2[vez][1], Jogar(Carta.de_texto(carta)))
+            for leitor, _ in conexoes2:
+                assert (await receber_estado(leitor)).vaza == [(vez, carta)]
+            await fechar(*conexoes2)
+
+    asyncio.run(cenario())
