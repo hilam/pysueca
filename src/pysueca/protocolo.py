@@ -68,21 +68,55 @@ def estado(jogo: Jogo, nomes: list[str | None], assento: int) -> Estado:
     )
 
 
-def serializar(mensagem: Entrar | Jogar | Responder) -> bytes:
+def serializar(mensagem: Entrar | Jogar | Responder | Estado | Erro) -> bytes:
     """A linha JSON da mensagem, terminada em `\\n`."""
+    return (json.dumps(_para_dados(mensagem)) + "\n").encode()
+
+
+def _para_dados(mensagem: Entrar | Jogar | Responder | Estado | Erro) -> dict:
+    """Os campos JSON da mensagem."""
     if isinstance(mensagem, Entrar):
-        dados = {"tipo": "entrar", "nome": mensagem.nome}
-    elif isinstance(mensagem, Jogar):
-        dados = {"tipo": "jogar", "carta": mensagem.carta.texto()}
-    else:
-        dados = {"tipo": "responder", "cima": mensagem.cima}
-    return (json.dumps(dados) + "\n").encode()
+        return {"tipo": "entrar", "nome": mensagem.nome}
+    if isinstance(mensagem, Jogar):
+        return {"tipo": "jogar", "carta": mensagem.carta.texto()}
+    if isinstance(mensagem, Responder):
+        return {"tipo": "responder", "cima": mensagem.cima}
+    if isinstance(mensagem, Estado):
+        return {
+            "tipo": "estado",
+            "assentos": mensagem.assentos,
+            "mao": mensagem.mao,
+            "contagens": mensagem.contagens,
+            "trunfo": mensagem.trunfo,
+            "carta_trunfo": mensagem.carta_trunfo,
+            "vez": mensagem.vez,
+            "respondente": mensagem.respondente,
+            "vaza": [list(jogada) for jogada in mensagem.vaza],
+            "partidas": mensagem.partidas,
+            "encerrado": mensagem.encerrado,
+            "vencedor": mensagem.vencedor,
+        }
+    return {"tipo": "erro", "motivo": mensagem.motivo}
 
 
 _CAMPOS: dict[str, dict[str, type | tuple[type, ...]]] = {
     "entrar": {"nome": str},
     "jogar": {"carta": str},
     "responder": {"cima": bool},
+    "erro": {"motivo": str},
+    "estado": {
+        "assentos": list,
+        "mao": list,
+        "contagens": list,
+        "trunfo": (str, type(None)),
+        "carta_trunfo": (str, type(None)),
+        "vez": (int, type(None)),
+        "respondente": (int, type(None)),
+        "vaza": list,
+        "partidas": list,
+        "encerrado": bool,
+        "vencedor": (int, type(None)),
+    },
 }
 
 
@@ -122,4 +156,20 @@ def desserializar(linha: bytes) -> Entrar | Jogar | Responder | Erro:
         return Entrar(nome)
     if tipo == "jogar":
         return Jogar(Carta.de_texto(dados["carta"]))
-    return Responder(dados["cima"])
+    if tipo == "responder":
+        return Responder(dados["cima"])
+    if tipo == "estado":
+        return Estado(
+            assentos=dados["assentos"],
+            mao=dados["mao"],
+            contagens=dados["contagens"],
+            trunfo=dados["trunfo"],
+            carta_trunfo=dados["carta_trunfo"],
+            vez=dados["vez"],
+            respondente=dados["respondente"],
+            vaza=[tuple(jogada) for jogada in dados["vaza"]],
+            partidas=dados["partidas"],
+            encerrado=dados["encerrado"],
+            vencedor=dados["vencedor"],
+        )
+    return Erro(dados["motivo"])
