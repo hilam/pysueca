@@ -2,6 +2,8 @@
 
 import random
 
+import pytest
+
 from pysueca.baralho import Baralho
 from pysueca.carta import Carta, Naipe, Valor
 
@@ -96,3 +98,8 @@ def test_embaralhar_preserva_as_40_cartas() -> None:
     assert len(baralho.cartas) == 40
     assert len(set(baralho.cartas)) == 40
     assert set(baralho.cartas) == antes
+
+
+def test_valor_sem_ponto_vale_zero() -> None:
+    for valor in (Valor.SEIS, Valor.CINCO, Valor.QUATRO, Valor.TRES, Valor.DOIS):
+        assert Carta(Naipe.COPAS, valor).pontos == 0
