@@ -12,6 +12,7 @@ from textual.widgets import Static
 
 from pysueca.carta import Carta
 from pysueca.main import RespostaScreen, SuecaApp, analisar, desenhar_carta
+from pysueca.servidor import analisar as analisar_servidor
 from pysueca.protocolo import (
     Entrar,
     Erro,
@@ -474,5 +475,17 @@ def test_o_cliente_le_nome_host_e_porta() -> None:
 
 def test_o_cliente_usa_os_defaults() -> None:
     args = analisar(["Ana"])
+    assert args.host == "127.0.0.1"
+    assert args.porta == 8765
+
+
+def test_o_servidor_le_host_e_porta() -> None:
+    args = analisar_servidor(["--porta", "9000"])
+    assert args.host == "127.0.0.1"
+    assert args.porta == 9000
+
+
+def test_o_servidor_usa_a_porta_default() -> None:
+    args = analisar_servidor([])
     assert args.host == "127.0.0.1"
     assert args.porta == 8765
