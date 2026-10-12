@@ -46,3 +46,9 @@ def test_nome_e_normalizado() -> None:
 def test_nome_invalido_vira_erro() -> None:
     for nome in ("   ", "x" * 21):
         assert desserializar(serializar(Entrar(nome))) == Erro("nome_invalido")
+
+
+def test_campo_extra_vira_erro() -> None:
+    assert desserializar(b'{"tipo": "jogar", "carta": "7H", "cor": "azul"}') == Erro(
+        "campo_extra"
+    )
