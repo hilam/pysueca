@@ -154,10 +154,11 @@ class Jogo:
         return self.mao.jogar(assento, carta)
 
     def encerrar_mao(self) -> Resultado:
-        """Soma a mão ao placar da dupla vencedora e devolve o resultado."""
+        """Soma a mão ao placar da dupla vencedora e abre a mão seguinte."""
         resultado = self.mao.resultado
-        if resultado is Resultado.EMPATE:
-            return resultado
-        dupla = 0 if self.mao.pontos[0] > self.mao.pontos[1] else 1
-        self.partidas[dupla] += resultado.partidas
+        if resultado is not Resultado.EMPATE:
+            dupla = 0 if self.mao.pontos[0] > self.mao.pontos[1] else 1
+            self.partidas[dupla] += resultado.partidas
+        self.embaralhador = (self.embaralhador + 1) % 4
+        self.mao = Mao(self.embaralhador, self.rng)
         return resultado
