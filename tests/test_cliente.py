@@ -283,6 +283,25 @@ def test_o_fim_do_jogo_aparece_na_mesa() -> None:
     assert "4 x 2" in mesa
 
 
+def test_a_mesa_encerrada_nao_anuncia_vez() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=[],
+                vez=0,
+                partidas=[4, 2],
+                encerrado=True,
+                vencedor=0,
+            )
+        )
+        await aguardar(pilot, lambda: "4 de 4" in painel(app, "#assentos"))
+        assert "Sua vez" not in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
+
+
 def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
