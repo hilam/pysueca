@@ -116,3 +116,20 @@ def test_snapshot_traz_so_a_contagem_das_outras_maos() -> None:
     for outro in (0, 1, 3):
         for carta in jogo.mao.maos[outro]:
             assert f'"{carta.texto()}"'.encode() not in linha
+
+
+def test_snapshot_reflete_a_mesa() -> None:
+    jogo = Jogo(random.Random(7), embaralhador=0)
+    jogo.preparar(cima=True)
+    jogo.partidas = [2, 0]
+    carta = jogo.mao.maos[0][0]
+    jogo.jogar(0, carta)
+
+    snap = estado(jogo, ["Ana", "Bia", "Caio", "Dora"], assento=2)
+
+    assert snap.trunfo == jogo.mao.trunfo.value
+    assert snap.carta_trunfo == jogo.mao.carta_trunfo.texto()
+    assert snap.vez == 1
+    assert snap.vaza == [(0, carta.texto())]
+    assert snap.partidas == [2, 0]
+    assert snap.encerrado is False
