@@ -159,7 +159,7 @@ def desserializar(linha: bytes) -> Mensagem:
         raise LinhaLonga(len(linha))
     try:
         dados = json.loads(linha.decode())
-    except (UnicodeDecodeError, json.JSONDecodeError):
+    except UnicodeDecodeError, json.JSONDecodeError:
         return Erro("json_invalido")
     if not isinstance(dados, dict):
         return Erro("json_invalido")
