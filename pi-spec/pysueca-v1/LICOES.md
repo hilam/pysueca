@@ -160,3 +160,21 @@
 | `ConnectionResetError` em `Servidor._desconectar` (arrastado da 05) | baixa | só o fechamento abrupto do cliente dispara |
 
 **Evidências:** `pi-spec/pysueca-v1/execucao/06-cliente-tui/relatorio-verificacao.md`
+
+---
+
+## Sprint 07-polimento — Polimento — 2026-10-12
+
+**Aprendizado:** a sprint foi quase toda de tela e prosa, e o custo real esteve em dois pontos. (1) Trocar a mensagem de erro mudou o comportamento que **quatro testes da 06** asseguravam (código cru no `#aviso`): o RED deles apareceu ao rodar a suite depois do `MOTIVOS`, não ao escrever teste novo — os asserts antigos foram trocados em commits `test(...)` antes do `feat(...)`, mantendo a suite verde em todo commit de implementação e a lição de "não consertar depois". (2) O fallback do `frase_do_motivo` não pôde ser adiado para a task 2.11: o teste 2.1 do qa-plan exige comparar cada frase com a **genérica** (é o que faz um motivo novo do motor ficar vermelho), então o fallback entrou no primeiro GREEN e 2.11/2.12 viraram só o teste de cobertura. Medições desta sprint, não suposições: no Textual 8.2.8 `app.dark` não existe (o action troca `app.theme`, `textual-dark` ↔ `textual-light`); o `Footer.render()` devolve `Blank` no `run_test` e as teclas vivem nos filhos `FooterKey` (`key_display` renderizado: `←`, `→`, `⏎`, `^q`), que nem existem para `Binding(show=False)`; e `FooterKey` só aparece para ações distintas (bindings com a mesma action colapsam). `protocolo.py`, `motor.py` e `servidor.py` ficaram intactos: a tradução do motivo mora no `_traduzir` do cliente, na fronteira fio→tela da 06.
+
+**O que muda nas próximas sprints:** antes de escrever o teste, listar os testes existentes que asseguram o comportamento que vai mudar e agendá-los como commits `test(...)` de RED antes do `feat(...)`. Quando um teste usa o fallback/valor default como oráculo, o fallback pertence ao primeiro GREEN — não criar task separada para ele. Para o rodapé do Textual, asseverar `app.query(FooterKey)` (`key_display`/`description`/`display`), nunca `Binding.show` nem `Footer.render()`. Um teste por edição de arquivo: dois testes na mesma região viram um hunk só e a separação em dois commits exige cirurgia de histórico.
+
+**Retrabalho adiado:**
+
+| O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
+|---|---|---|
+| Teste de tela do fim de jogo (`#mesa` com snapshot `encerrado`) em vez do render puro de `desenhar_mesa` | baixa | o render puro cobre a linha nova; o wiring do painel não muda |
+| `encerrado` com `vencedor` nulo, `d` com o modal cima/baixo aberto e prioridade queda vs. erro no `#aviso` | baixa | ramos defensivos/de convivência de avisos; nenhum caminho de jogo quebrado |
+| 5 linhas defensivas de `main.py`/`servidor.py` e `src/pysueca/__init__.py` fora da cobertura | baixa | arrastado das sprints 05/06; sem caminho de jogo quebrado |
+
+**Evidências:** `pi-spec/pysueca-v1/execucao/07-polimento/relatorio-verificacao.md`
