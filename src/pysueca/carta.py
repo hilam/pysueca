@@ -80,3 +80,10 @@ class Carta:
         except KeyError as erro:
             raise ValueError(f"carta inválida: {texto!r}") from erro
         return cls(naipe, valor)
+
+    def vence(self, outra: Carta, naipe_puxado: Naipe, trunfo: Naipe) -> bool:
+        if self.naipe is trunfo:
+            return outra.naipe is not trunfo or self.forca > outra.forca
+        if outra.naipe is trunfo:
+            return False
+        return self.forca > outra.forca
