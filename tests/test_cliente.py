@@ -700,6 +700,26 @@ def test_as_teclas_de_jogo_aparecem_no_rodape() -> None:
     rodar("Ana", cenario)
 
 
+def test_d_alterna_o_tema() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        await pilot.pause()
+        visiveis = {
+            (tecla.key_display, tecla.description)
+            for tecla in app.query(FooterKey)
+            if tecla.display
+        }
+        assert ("d", "Tema") in visiveis
+        assert app.theme == "textual-dark"
+        await pilot.press("d")
+        await pilot.pause()
+        assert app.theme == "textual-light"
+        await pilot.press("d")
+        await pilot.pause()
+        assert app.theme == "textual-dark"
+
+    rodar("Ana", cenario)
+
+
 def test_o_cliente_le_nome_host_e_porta() -> None:
     args = analisar(["Ana", "--host", "10.0.0.2", "--porta", "9000"])
     assert args.nome == "Ana"
