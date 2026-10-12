@@ -11,7 +11,7 @@ import pytest
 from textual.widgets import Static
 
 from pysueca.carta import Carta
-from pysueca.main import RespostaScreen, SuecaApp, desenhar_carta
+from pysueca.main import RespostaScreen, SuecaApp, analisar, desenhar_carta
 from pysueca.protocolo import (
     Entrar,
     Erro,
@@ -463,3 +463,16 @@ def test_congelado_o_cliente_ainda_manda_e_o_servidor_recusa() -> None:
         assert "mesa_congelada" in painel(app, "#aviso")
 
     rodar("Ana", cenario)
+
+
+def test_o_cliente_le_nome_host_e_porta() -> None:
+    args = analisar(["Ana", "--host", "10.0.0.2", "--porta", "9000"])
+    assert args.nome == "Ana"
+    assert args.host == "10.0.0.2"
+    assert args.porta == 9000
+
+
+def test_o_cliente_usa_os_defaults() -> None:
+    args = analisar(["Ana"])
+    assert args.host == "127.0.0.1"
+    assert args.porta == 8765
