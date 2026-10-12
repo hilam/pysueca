@@ -310,6 +310,28 @@ def test_a_mesa_encerrada_nao_anuncia_vez() -> None:
     rodar("Ana", cenario)
 
 
+def test_a_mesa_encerrada_nao_manda_jogar() -> None:
+    async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
+        assert await falso.proxima() == Entrar("Ana")
+        await falso.enviar(
+            Estado(
+                assentos=["Ana", "Bia", "Caio", "Duda"],
+                mao=["7H", "AC"],
+                vez=0,
+                partidas=[4, 2],
+                encerrado=True,
+                vencedor=0,
+            )
+        )
+        await aguardar(pilot, lambda: painel(app, "#mao") != "")
+        await pilot.press("enter")
+        with pytest.raises(TimeoutError):
+            await asyncio.wait_for(falso.recebidas.get(), 0.1)
+        assert "Não é a sua vez" not in painel(app, "#aviso")
+
+    rodar("Ana", cenario)
+
+
 def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
