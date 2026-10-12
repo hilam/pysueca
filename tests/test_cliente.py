@@ -96,6 +96,17 @@ def rodar(nome: str, cenario: Cenario) -> None:
     asyncio.run(interno())
 
 
+def rodar_sem_servidor(nome: str, cenario: Callable[[SuecaApp, Any], Awaitable[None]]) -> None:
+    """Roda o cenário com a porta fechada: nenhum servidor escutando."""
+
+    async def interno() -> None:
+        app = SuecaApp("127.0.0.1", porta_livre(), nome)
+        async with app.run_test() as pilot:
+            await cenario(app, pilot)
+
+    asyncio.run(interno())
+
+
 def painel(app: SuecaApp, seletor: str) -> str:
     """O texto renderizado do painel."""
     return app.query_one(seletor, Static).render().plain
@@ -412,3 +423,11 @@ def test_mensagem_invalida_do_fio_nao_derruba_o_app() -> None:
         assert "json_invalido" not in painel(app, "#aviso")
 
     rodar("Ana", cenario)
+
+
+def test_sem_servidor_o_cliente_avisa_e_segue() -> None:
+    async def cenario(app: SuecaApp, pilot: Any) -> None:
+        await aguardar(pilot, lambda: "conexão" in painel(app, "#aviso"))
+        assert "conexão" in painel(app, "#aviso")
+
+    rodar_sem_servidor("Ana", cenario)
