@@ -67,3 +67,23 @@
 | `ruff`/`mypy` vermelhos em `main.py` e `imagens/get_images.py` | baixa | pré-existentes desde a sprint 01; `main.py` é reescrita na sprint 06 |
 
 **Evidências:** `pi-spec/pysueca-v1/execucao/03-jogo-e-papeis/relatorio-verificacao.md`
+
+---
+
+## Sprint 04-protocolo — Protocolo — 2026-10-12
+
+**Aprendizado:** o `protocolo.py` fechou com 20 testes e 97,9% de cobertura sem tocar o motor — a fronteira fixada na sprint 02 (erros de regra no motor, erros de fio no protocolo) sustentou a implementação: `erro_de_jogada` virou `Erro(erro.value)` porque o `ErroJogada` já carregava o identificador de fio, e nenhuma checagem de vez/posse/naipe foi duplicada. O RED funcionou de novo como auditor de artefato: o teste de mascaramento reprovou um snapshot **correto** porque a carta do trunfo é pública (virada na mesa) e pode estar na mão de outro assento — o `qa-plan.md` ("nenhuma carta alheia em campo algum") é que estava errado, e o teste passou a ignorar a carta pública. O que **não** funcionou: o codec do `Estado` foi escrito antes do teste de ida-e-volta (revertido com `git checkout` para virar RED genuíno) e o `feat` de `estado()` deixou a suite vermelha por interagir com uma asserção antiga do teste de mascaramento, corrigida em commit seguinte em vez de dentro do mesmo ciclo.
+
+**O que muda nas próximas sprints:** cenário de mascaramento precisa declarar explicitamente o que é secreto — "tudo menos a minha mão" é falso quando há informação pública no snapshot (trunfo); e ao completar um campo do snapshot, rodar a suite **antes** de commitar o `feat`, porque o efeito cruzado entre campo novo e teste antigo foi o que quebrou o verde.
+
+**Retrabalho adiado:**
+
+| O que | Criticidade (alta\|média\|baixa) | Impacto se adiar |
+|---|---|---|
+| Teste de ida-e-volta de `erro` (serializar + desserializar) | média | caminho de saída da 05 sem teste; 3 linhas descobertas, 1 por sentido |
+| Teste de campo com tipo errado em `_validar` | baixa | ramo defensivo de 1 linha; o caminho de campo faltando o exercita parcialmente |
+| `pytest-cov` nas dev-deps (cobertura hoje via `trace`) | baixa | medição manual a cada verificação |
+| Ancorar `Jogo.vencedor is None` enquanto o jogo corre (arrastado da sprint 03) | baixa | contrato documentado sem teste; protocolo (04) e TUI (06) trazem os seus |
+| `ruff`/`mypy` vermelhos em `main.py` e `imagens/get_images.py` | baixa | pré-existentes desde a sprint 01; `main.py` é reescrita na sprint 06 |
+
+**Evidências:** `pi-spec/pysueca-v1/execucao/04-protocolo/relatorio-verificacao.md`
