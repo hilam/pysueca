@@ -28,3 +28,7 @@ def test_responder_faz_ida_e_volta() -> None:
 def test_linha_malformada_vira_erro() -> None:
     for linha in (b"{", b"nao e json", b"[1, 2]"):
         assert desserializar(linha) == Erro("json_invalido")
+
+
+def test_tipo_desconhecido_vira_erro() -> None:
+    assert desserializar(b'{"tipo": "assobiar"}') == Erro("tipo_desconhecido")
