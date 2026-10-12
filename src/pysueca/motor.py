@@ -89,6 +89,23 @@ class Mao:
         self.vazas = []
 
     def jogar(self, assento: int, carta: Carta) -> ErroJogada | None:
+        erro = self._validar(assento, carta)
+        if erro is not None:
+            return erro
+        self.maos[assento].remove(carta)
+        if self.vaza is None:
+            self.vaza = Vaza(carta.naipe, self.trunfo)
+        self.vaza.jogadas.append((assento, carta))
+        if len(self.vaza.jogadas) == 4:
+            self.vazas.append(self.vaza)
+            self.vez = self.vaza.vencedor
+            self.vaza = None
+        else:
+            self.vez = (assento + 1) % 4
+        return None
+
+    def _validar(self, assento: int, carta: Carta) -> ErroJogada | None:
+        """O erro da jogada, ou `None`; não toca no estado."""
         if assento != self.vez:
             return ErroJogada.FORA_DA_VEZ
         if carta not in self.maos[assento]:
@@ -97,17 +114,6 @@ class Mao:
             self.maos[assento], self.vaza.naipe_puxado, carta
         ):
             return ErroJogada.NAO_SEGUIU_NAIPE
-        self.maos[assento].remove(carta)
-        if self.vaza is None:
-            self.vaza = Vaza(carta.naipe, self.trunfo, [(assento, carta)])
-        else:
-            self.vaza.jogadas.append((assento, carta))
-        if len(self.vaza.jogadas) == 4:
-            self.vazas.append(self.vaza)
-            self.vez = self.vaza.vencedor
-            self.vaza = None
-        else:
-            self.vez = (assento + 1) % 4
         return None
 
     @property
