@@ -267,6 +267,22 @@ def test_motivo_desconhecido_nao_vaza_codigo_nem_derruba_a_tela() -> None:
     rodar("Ana", cenario)
 
 
+def test_o_fim_do_jogo_aparece_na_mesa() -> None:
+    mesa = desenhar_mesa(
+        Estado(
+            assentos=["Ana", "Bia", "Caio", "Duda"],
+            mao=[],
+            carta_trunfo="AH",
+            partidas=[4, 2],
+            encerrado=True,
+            vencedor=0,
+        )
+    )
+    assert "Fim de jogo" in mesa
+    assert "Ana e Caio" in mesa
+    assert "4 x 2" in mesa
+
+
 def test_os_assentos_mostram_a_contagem_de_cartas() -> None:
     async def cenario(app: SuecaApp, pilot: Any, falso: ServidorFalso) -> None:
         assert await falso.proxima() == Entrar("Ana")
