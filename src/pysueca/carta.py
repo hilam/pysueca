@@ -71,9 +71,6 @@ class Carta:
     def texto(self) -> str:
         return f"{self.valor.value}{self.naipe.value}"
 
-    def __str__(self) -> str:
-        return self.texto()
-
     @classmethod
     def de_texto(cls, texto: str) -> Carta:
         if len(texto) != 2:
