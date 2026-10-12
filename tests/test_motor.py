@@ -1,7 +1,10 @@
 """Testes do motor puro: vaza e mão (sprint 02)."""
 
+import random
+
+from pysueca.baralho import Baralho
 from pysueca.carta import Carta, Naipe, Valor
-from pysueca.motor import Vaza
+from pysueca.motor import Mao, Vaza
 
 
 def test_trunfo_vence_o_naipe_puxado() -> None:
@@ -34,3 +37,13 @@ def test_maior_forca_do_naipe_puxado_vence_os_descartes() -> None:
         ],
     )
     assert vaza.vencedor == 0
+
+
+def test_preparacao_distribui_10_cartas_por_assento() -> None:
+    mao = Mao(0, random.Random(42))
+    mao.preparar(cima=True)
+
+    assert [len(m) for m in mao.maos] == [10, 10, 10, 10]
+    todas = [carta for m in mao.maos for carta in m]
+    assert len(set(todas)) == 40
+    assert set(todas) == set(Baralho().cartas)
