@@ -394,3 +394,22 @@ def test_o_jogo_encerrado_nao_abre_mao_nova() -> None:
             await fechar(*conexoes)
 
     asyncio.run(cenario())
+
+
+def test_queda_congela_a_mesa_e_avisa_os_outros_tres() -> None:
+    async def cenario() -> None:
+        async with mesa() as (_, porta):
+            conexoes, _ = await mesa_pronta(porta)
+            caido = 2
+            conexoes[caido][1].close()
+            await conexoes[caido][1].wait_closed()
+
+            restantes = [conexao for assento, conexao in enumerate(conexoes) if assento != caido]
+            for leitor, _ in restantes:
+                snapshot = await receber_estado(leitor)
+                assert snapshot.ausentes == [caido]
+                assert snapshot.assentos == ["Ana", "Bia", "Caio", "Duda"]
+                assert snapshot.trunfo is not None
+            await fechar(*restantes)
+
+    asyncio.run(cenario())
