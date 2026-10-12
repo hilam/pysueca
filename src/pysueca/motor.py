@@ -126,3 +126,19 @@ class Mao:
     @property
     def resultado(self) -> Resultado:
         return Resultado.de_pontos(*self.pontos)
+
+
+class Jogo:
+    """A mesa: a mão corrente, o placar por dupla e o fim do jogo."""
+
+    def __init__(self, rng: random.Random | None = None, embaralhador: int = 0) -> None:
+        self.rng = rng if rng is not None else random.Random()
+        self.embaralhador = embaralhador
+        self.partidas = [0, 0]
+        self.mao = Mao(embaralhador, self.rng)
+
+    def preparar(self, cima: bool = True) -> None:
+        self.mao.preparar(cima)
+
+    def jogar(self, assento: int, carta: Carta) -> ErroJogada | None:
+        return self.mao.jogar(assento, carta)
