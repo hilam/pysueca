@@ -87,3 +87,12 @@ def test_mesma_seed_mesma_ordem() -> None:
     um.embaralhar()
     dois.embaralhar()
     assert um.cartas == dois.cartas
+
+
+def test_embaralhar_preserva_as_40_cartas() -> None:
+    baralho = Baralho(random.Random(7))
+    antes = set(baralho.cartas)
+    baralho.embaralhar()
+    assert len(baralho.cartas) == 40
+    assert len(set(baralho.cartas)) == 40
+    assert set(baralho.cartas) == antes
