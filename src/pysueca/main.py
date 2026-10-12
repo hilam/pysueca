@@ -202,6 +202,7 @@ class SuecaApp(App[None]):
     def avisar(self, motivo: str) -> None:
         """Guarda o aviso de erro até o próximo snapshot."""
         self.aviso_erro = motivo
+        self.query_one("#aviso", Static).update(motivo)
 
 
 def analisar(argv: list[str] | None = None) -> argparse.Namespace:
