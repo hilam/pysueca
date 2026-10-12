@@ -108,6 +108,7 @@ def test_estado_faz_ida_e_volta() -> None:
 def test_snapshot_traz_so_a_contagem_das_outras_maos() -> None:
     jogo = Jogo(random.Random(7), embaralhador=0)
     jogo.preparar(cima=True)
+    trunfo = jogo.mao.carta_trunfo
 
     snap = estado(jogo, ["Ana", "Bia", "Caio", "Dora"], assento=2)
     linha = serializar(snap)
@@ -115,6 +116,8 @@ def test_snapshot_traz_so_a_contagem_das_outras_maos() -> None:
     assert snap.contagens == [10, 10, 10, 10]
     for outro in (0, 1, 3):
         for carta in jogo.mao.maos[outro]:
+            if carta == trunfo:
+                continue  # a carta do trunfo é pública: virada na mesa
             assert f'"{carta.texto()}"'.encode() not in linha
 
 
