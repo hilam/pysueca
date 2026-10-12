@@ -90,10 +90,18 @@ def desenhar_mesa(estado: Estado) -> str:
         nome = estado.assentos[assento] or f"assento {assento}"
         linhas.append(f"{nome}: {desenhar_carta(texto)}")
     partidas = estado.partidas if len(estado.partidas) >= 2 else [0, 0]
-    if estado.encerrado and estado.vencedor is not None:
-        linhas.append(f"Fim de jogo — venceu {nome_da_dupla(estado, estado.vencedor)}")
+    fim = texto_do_fim(estado)
+    if fim is not None:
+        linhas.append(fim)
     linhas.append(f"Placar: {partidas[0]} x {partidas[1]}")
     return "\n".join(linhas)
+
+
+def texto_do_fim(estado: Estado) -> str | None:
+    """A linha do fim do jogo, ou `None` com a mesa em andamento."""
+    if not estado.encerrado or estado.vencedor is None:
+        return None
+    return f"Fim de jogo — venceu {nome_da_dupla(estado, estado.vencedor)}"
 
 
 def nome_da_dupla(estado: Estado, dupla: int) -> str:
