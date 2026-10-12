@@ -181,3 +181,13 @@ def test_resultado_pelos_limites_do_readme() -> None:
     assert Resultado.de_pontos(91, 29) is Resultado.QUILO
     assert Resultado.de_pontos(119, 1) is Resultado.QUILO
     assert Resultado.de_pontos(120, 0) is Resultado.BANDEIRA
+
+
+def test_jogada_fora_da_vez_devolve_erro() -> None:
+    mao = Mao(0, random.Random(1))
+    mao.preparar()
+    assert mao.vez == 0
+
+    carta = mao.maos[2][0]
+    assert mao.jogar(2, carta) is ErroJogada.FORA_DA_VEZ
+    assert carta in mao.maos[2]
