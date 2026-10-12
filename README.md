@@ -21,7 +21,7 @@ O objetivo é fazer mais pontos que a dupla adversária.
 - **Vaza**: as quatro cartas jogadas, uma por jogador. Quem joga a maior carta leva a vaza e puxa a seguinte.
 - **Mão**: uma distribuição completa — embaralhar, cortar o baralho, puxar o trunfo, dez cartas para cada um, dez vazas e a contagem dos pontos.
 - **Partida**: o que se ganha ao vencer uma mão — 1 numa vitória normal, 2 num quilo, 4 numa bandeira.
-- **Jogo**: a corrida até 4 partidas. Bandeira e quilo encerram o jogo na hora.
+- **Jogo**: a corrida até 4 partidas. A bandeira, que vale 4, encerra o jogo na hora.
 
 ### Dinâmica
 
@@ -51,7 +51,7 @@ Sentando os jogadores em círculo na ordem A → B → C → D, com as duplas (A
 | 61 a 90 | vitória normal | 1 |
 | 60 (empate) | ninguém vence a mão | 0 |
 
-Ganha o jogo a dupla que fizer 4 partidas primeiro. Bandeira e quilo encerram o jogo na hora.
+Ganha o jogo a dupla que fizer 4 partidas primeiro. A bandeira vale 4 e encerra o jogo na hora.
 
 ### Desenvolvimento
 

@@ -24,7 +24,7 @@ Uma mesa de Sueca para quatro jogadores em terminais diferentes: um servidor hea
 
 **Objetivo:** jogar uma mão completa no motor, sem rede e sem UI.
 
-**Decisão arquitetural:** `Mao` como máquina de estados explícita (`preparar` → 10 vazas → `pontuar`), com `puxar`/`jogar` devolvendo erro em vez de exceção para jogada ilegal — o servidor não pode derrubar a mesa por causa de um cliente. A `Mao` usa o RNG injetado na sprint 01, então toda vaza testada tem seed determinística. Ver `CONTEXT.md` (Vaza, Puxar, Trunfar, Mão) e `sprints/02-vaza-e-mao/design.md`.
+**Decisão arquitetural:** `Mao` como máquina de estados explícita (`preparar` → 10 vazas → `pontuar`), com `Mao.jogar` devolvendo erro em vez de exceção para jogada ilegal — o servidor não pode derrubar a mesa por causa de um cliente. A `Mao` usa o RNG injetado na sprint 01, então toda vaza testada tem seed determinística. Ver `CONTEXT.md` (Vaza, Puxar, Trunfar, Mão) e `sprints/02-vaza-e-mao/design.md`.
 
 **Entregável:** `tests/test_motor.py` verde, jogando uma mão inteira com 4 jogadores escolhendo cartas legais ao acaso e provando: naipe puxado é obrigatório, trunfo vence naipe, entre trunfos vence a maior, quem levou puxa a seguinte, e o resultado (bandeira/quilo/normal/empate) sai dos limites de `README.md`. Todos os testes verdes.
 
@@ -36,7 +36,7 @@ Uma mesa de Sueca para quatro jogadores em terminais diferentes: um servidor hea
 
 **Objetivo:** a corrida até 4 partidas, com rotação de papéis e placar.
 
-**Decisão arquitetural:** `Jogo` acumula partidas por dupla e encerra em bandeira/quilo; a rotação de embaralhador/cortador/dador anda um assento por mão. Ver `README.md` item 10 da Dinâmica e `sprints/03-jogo-e-papeis/design.md`.
+**Decisão arquitetural:** `Jogo` acumula partidas por dupla e encerra ao chegar a 4 partidas (a bandeira, que vale 4, cai nessa regra); a rotação de embaralhador/cortador/dador anda um assento por mão. Ver `README.md` item 10 da Dinâmica e `sprints/03-jogo-e-papeis/design.md`.
 
 **Entregável:** `tests/test_jogo.py` verde, provando que o embaralhador puxa a primeira vaza, que os papéis rotacionam um assento por mão, que bandeira encerra o jogo na hora, que uma mão de 60 a 60 não dá partida a ninguém e que o jogo acaba ao chegar a 4 partidas. Todos os testes verdes.
 

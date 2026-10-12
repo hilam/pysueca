@@ -88,5 +88,5 @@ Vencer a mão com os 120 pontos → 4 partidas.
 _Avoid_: —
 
 **Jogo**:
-A corrida até 4 partidas, entre as mesmas duas duplas de uma mesa. Bandeira e quilo encerram o jogo na hora.
+A corrida até 4 partidas, entre as mesmas duas duplas de uma mesa. A bandeira, que vale 4, encerra o jogo na hora.
 _Avoid_: sessão, match
