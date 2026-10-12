@@ -2,7 +2,19 @@
 
 import random
 
-from pysueca.motor import ErroJogada, Jogo, Resultado
+from pysueca.motor import ErroJogada, Jogo, Mao, Resultado
+
+
+class _MaoDePlacar(Mao):
+    """Uma `Mao` com placar fixo, só para os cenários de placar do `Jogo`."""
+
+    def __init__(self, pontos: tuple[int, int]) -> None:
+        super().__init__(0)
+        self._pontos = pontos
+
+    @property
+    def pontos(self) -> tuple[int, int]:
+        return self._pontos
 
 
 def test_embaralhador_puxa_a_primeira_vaza() -> None:
@@ -30,3 +42,11 @@ def test_partidas_que_a_mao_vale() -> None:
     assert Resultado.NORMAL.partidas == 1
     assert Resultado.QUILO.partidas == 2
     assert Resultado.BANDEIRA.partidas == 4
+
+
+def test_mao_normal_soma_uma_partida_a_dupla_vencedora() -> None:
+    jogo = Jogo(random.Random(1), embaralhador=0)
+    jogo.mao = _MaoDePlacar((70, 50))
+
+    assert jogo.encerrar_mao() is Resultado.NORMAL
+    assert jogo.partidas == [1, 0]
